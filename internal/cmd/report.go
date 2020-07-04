@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"html/template"
 	"log"
 	"os"
 
+	"github.com/nscuro/dependency-track-client/internal/report"
 	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 	"github.com/spf13/cobra"
 )
@@ -31,28 +31,16 @@ func runReportCmd(cmd *cobra.Command, _ []string) {
 	outputPath, _ := cmd.Flags().GetString("output")
 
 	dtrackClient := dtrack.NewClient(pBaseURL, pAPIKey)
+	reportGenerator := report.NewGenerator(dtrackClient)
 
-	findings, err := dtrackClient.GetFindings(projectUUID)
-	if err != nil {
-		log.Fatal("retrieving findings failed: ", err)
-		return
-	}
-
-	tmpl, err := template.ParseFiles(templatePath)
-	if err != nil {
-		log.Fatal("failed to parse template: ", err)
-		return
-	}
-
-	outputFile, err := os.Open(outputPath)
+	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 	defer outputFile.Close()
 
-	if err = tmpl.Execute(outputFile, findings); err != nil {
-		log.Fatal("failed to execute template: ", err)
-		return
+	if err = reportGenerator.GenerateProjectReport(projectUUID, templatePath, outputFile); err != nil {
+		log.Fatal("generating report failed: ", err)
 	}
 }

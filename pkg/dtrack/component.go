@@ -1,10 +1,12 @@
 package dtrack
 
 type Component struct {
-	UUID    string `json:"uuid"`
-	Name    string `json:"name"`
-	Group   string `json:"group"`
-	Version string `json:"version"`
+	UUID       string `json:"uuid"`
+	Name       string `json:"name"`
+	Group      string `json:"group"`
+	Version    string `json:"version"`
+	PackageURL string `json:"purl"`
+	Internal   bool   `json:"isInternal"`
 }
 
 func (c Client) GetComponent(uuid string) (*Component, error) {
@@ -12,6 +14,7 @@ func (c Client) GetComponent(uuid string) (*Component, error) {
 		SetPathParams(map[string]string{
 			"uuid": uuid,
 		}).
+		SetResult(&Component{}).
 		Get("/api/v1/component/{uuid}")
 	if err != nil {
 		return nil, err
@@ -21,5 +24,10 @@ func (c Client) GetComponent(uuid string) (*Component, error) {
 		return nil, err
 	}
 
-	return res.Result().(*Component), nil
+	component, ok := res.Result().(*Component)
+	if !ok {
+		return nil, ErrInvalidResponseType
+	}
+
+	return component, nil
 }

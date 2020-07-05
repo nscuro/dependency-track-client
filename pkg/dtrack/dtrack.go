@@ -7,10 +7,11 @@ import (
 )
 
 var (
-	ErrForbidden     = errors.New("forbidden")
-	ErrInvalidStatus = errors.New("invalid status")
-	ErrNotFound      = errors.New("not found")
-	ErrUnauthorized  = errors.New("unauthorized")
+	ErrForbidden           = errors.New("forbidden")
+	ErrInvalidStatus       = errors.New("invalid status")
+	ErrNotFound            = errors.New("not found")
+	ErrUnauthorized        = errors.New("unauthorized")
+	ErrInvalidResponseType = errors.New("invalid response type")
 )
 
 type Client struct {

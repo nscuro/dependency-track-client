@@ -127,7 +127,7 @@ loop:
 
 	// TODO: load quality gate from file
 	log.Println("evaluating quality gate")
-	qualityGate := audit.QualityGate{MaxRiskScore: 10}
+	qualityGate := audit.QualityGate{MaxSeverity: dtrack.HighSeverity}
 	if err = qualityGate.Evaluate(findings); err != nil {
 		log.Fatal("quality gate failed: ", err)
 	}

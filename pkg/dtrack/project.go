@@ -22,5 +22,10 @@ func (c Client) GetProject(uuid string) (*Project, error) {
 		return nil, err
 	}
 
-	return res.Result().(*Project), nil
+	project, ok := res.Result().(*Project)
+	if !ok {
+		return nil, ErrInvalidResponseType
+	}
+
+	return project, nil
 }

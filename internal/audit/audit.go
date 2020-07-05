@@ -2,6 +2,7 @@ package audit
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 )
@@ -33,7 +34,21 @@ func (q QualityGate) Evaluate(findings []dtrack.Finding) error {
 	}
 
 	if q.MaxSeverity != "" {
-		return ErrMaxSeverityExceeded
+		maxSeverityValue, ok := severities[q.MaxSeverity]
+		if !ok {
+			return fmt.Errorf("invalid severity \"%s\"", q.MaxSeverity)
+		}
+
+		for _, finding := range findings {
+			severityValue, ok := severities[finding.Vulnerability.Severity]
+			if !ok {
+				return fmt.Errorf("invalid severity \"%s\"", finding.Vulnerability.Severity)
+			}
+
+			if severityValue > maxSeverityValue {
+				return ErrMaxSeverityExceeded
+			}
+		}
 	}
 
 	if len(q.SeverityThresholds) > 0 {

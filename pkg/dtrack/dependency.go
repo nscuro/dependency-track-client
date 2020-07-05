@@ -30,8 +30,12 @@ func (c Client) GetDependenciesForProject(projectUUID string) ([]Dependency, err
 			return nil, err
 		}
 
-		dependenciesOnPage := *(res.Result().(*[]Dependency))
-		dependencies = append(dependencies, dependenciesOnPage...)
+		dependenciesOnPage, ok := res.Result().(*[]Dependency)
+		if !ok {
+			return nil, ErrInvalidResponseType
+		}
+
+		dependencies = append(dependencies, *dependenciesOnPage...)
 
 		totalCount, _ := strconv.Atoi(res.Header().Get("X-Total-Count"))
 

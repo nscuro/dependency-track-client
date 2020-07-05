@@ -22,5 +22,10 @@ func (c Client) GetFindings(uuid string) ([]Finding, error) {
 		return nil, err
 	}
 
-	return *(res.Result().(*[]Finding)), nil
+	findings, ok := res.Result().(*[]Finding)
+	if !ok {
+		return nil, ErrInvalidResponseType
+	}
+
+	return *findings, nil
 }

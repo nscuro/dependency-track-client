@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"time"
 
 	"github.com/nscuro/dependency-track-client/internal/audit"
@@ -15,7 +14,7 @@ import (
 
 var auditCmd = &cobra.Command{
 	Use:   "audit",
-	Short: "Audit for vulnerabilities",
+	Short: "audit for vulnerabilities",
 	Run:   runAuditCmd,
 }
 
@@ -33,35 +32,18 @@ func init() {
 }
 
 func runAuditCmd(cmd *cobra.Command, _ []string) {
-	projectName, _ := cmd.Flags().GetString("project")
-	projectVersion, _ := cmd.Flags().GetString("version")
-	projectUUID, _ := cmd.Flags().GetString("uuid")
 	bomPath, _ := cmd.Flags().GetString("bom")
 	autoCreate, _ := cmd.Flags().GetBool("autocreate")
 
-	if (projectName == "" || projectVersion == "") && projectUUID == "" {
-		log.Fatal("either project name and version OR project uuid must be provided")
-		return
-	}
-
-	dtrackClient := dtrack.NewClient(pBaseURL, pAPIKey)
-
-	log.Println("retrieving project info")
-	project, err := dtrackClient.GetProject(projectUUID)
+	log.Println("resolving project")
+	project, err := dtrackClient.ResolveProject(pProjectUUID, pProjectName, pProjectVersion)
 	if err != nil {
-		log.Fatal("failed to retrieve project: ", err)
+		log.Fatal("failed to resolve project: ", err)
 		return
 	}
 
 	log.Println("reading bom")
-	bomFile, err := os.Open(bomPath)
-	if err != nil {
-		log.Fatal("failed to read bom: ", err)
-		return
-	}
-
-	bomContent, err := ioutil.ReadAll(bomFile)
-	bomFile.Close()
+	bomContent, err := ioutil.ReadFile(bomPath)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -69,9 +51,9 @@ func runAuditCmd(cmd *cobra.Command, _ []string) {
 
 	log.Println("uploading bom")
 	uploadToken, err := dtrackClient.UploadBOM(dtrack.BOMSubmitRequest{
-		ProjectUUID:    projectUUID,
-		ProjectName:    projectName,
-		ProjectVersion: projectVersion,
+		ProjectUUID:    pProjectUUID,
+		ProjectName:    pProjectName,
+		ProjectVersion: pProjectVersion,
 		AutoCreate:     autoCreate,
 		BOM:            base64.StdEncoding.EncodeToString(bomContent),
 	})

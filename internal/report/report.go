@@ -22,21 +22,15 @@ func NewGenerator(dtrackClient *dtrack.Client) *Generator {
 	return &Generator{dtrackClient: dtrackClient}
 }
 
-func (g Generator) GenerateProjectReport(projectUUID string, templatePath string, writer io.Writer) error {
+func (g Generator) GenerateProjectReport(project *dtrack.Project, templatePath string, writer io.Writer) error {
 	log.Println("parsing template file")
 	tpl, err := template.ParseFiles(templatePath)
 	if err != nil {
 		return err
 	}
 
-	log.Println("retrieving project info")
-	project, err := g.dtrackClient.GetProject(projectUUID)
-	if err != nil {
-		return err
-	}
-
 	log.Println("retrieving project dependencies")
-	dependencies, err := g.dtrackClient.GetDependenciesForProject(projectUUID)
+	dependencies, err := g.dtrackClient.GetDependenciesForProject(project.UUID)
 	if err != nil {
 		return err
 	}
@@ -47,7 +41,7 @@ func (g Generator) GenerateProjectReport(projectUUID string, templatePath string
 	}
 
 	log.Println("retrieving findings for project")
-	findings, err := g.dtrackClient.GetFindings(projectUUID)
+	findings, err := g.dtrackClient.GetFindings(project.UUID)
 	if err != nil {
 		return err
 	}

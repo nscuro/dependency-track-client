@@ -50,3 +50,21 @@ func (c Client) IsTokenBeingProcessed(uploadToken string) (bool, error) {
 
 	return res.Result().(*tokenProcessingResponse).Processing, nil
 }
+
+func (c Client) ExportProjectAsCycloneDX(uuid string) (string, error) {
+	res, err := c.restClient.R().
+		SetHeader("Accept", "application/xml").
+		SetPathParams(map[string]string{
+			"uuid": uuid,
+		}).
+		Get("/api/v1/bom/cyclonedx/project/{uuid}")
+	if err != nil {
+		return "", err
+	}
+
+	if err = c.checkResponse(res, 200); err != nil {
+		return "", err
+	}
+
+	return res.String(), nil
+}

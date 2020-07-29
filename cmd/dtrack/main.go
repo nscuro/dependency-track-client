@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/nscuro/dependency-track-client/internal/cmd"
+	"github.com/nscuro/dependency-track-client/cmd/dtrack/cmd"
 )
 
 func main() {

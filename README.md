@@ -14,19 +14,23 @@ Usage:
   dtrack [command]
 
 Available Commands:
-  audit       Audit for vulnerabilities
+  audit       audit for vulnerabilities
+  bom         retrieve or upload boms
   help        Help about any command
-  report      Generate a vulnerability report
+  report      generate reports
 
 Flags:
-  -k, --api-key string    dependency-track api key
-  -u, --base-url string   dependency-track base url
-  -h, --help              help for dtrack
+  -k, --api-key string           dependency-track api key
+  -h, --help                     help for dtrack
+      --project-name string      project name
+      --project-uuid string      project uuid
+      --project-version string   project version
+  -u, --url string               dependency-track base url
 
 Use "dtrack [command] --help" for more information about a command.
 ```
 
-Global flags can be provided via environment variables as well:
+Dependency-Track's URL and the API key can be provided via environment variables as well:
 
 ```
 $ export DTRACK_BASE_URL=https://dependencytrack.evilcorp.com
@@ -36,21 +40,34 @@ $ export DTRACK_API_KEY=0sl67mjen99zxb2y
 ### Audit
 
 ```
-$ ./dtrack audit --project-name Dependency-Track --project-version 3.8.0 --bom ./bom.xml --autocreate
+$ ./dtrack audit \
+    --project-name Dependency-Track \
+    --project-version 3.8.0 \
+    --bom ./bom.xml --autocreate
 ```
 
 ### BOM
 
 ```
-$ ./dtrack bom get --project-name Dependency-Track --project-version 3.8.0 -o bom.xml
+$ ./dtrack bom get \
+    --project-name Dependency-Track \
+    --project-version 3.8.0 \
+    -o bom.xml
 ```
 
 ```
-$ ./dtrack bom upload --project-name Dependency-Track --project-version 3.8.0 --bom bom.xml --autocreate
+$ ./dtrack bom upload \
+    --project-name Dependency-Track \
+    --project-version 3.8.0 \
+    --bom bom.xml --autocreate
 ```
 
 ### Report
 
 ```
-$ ./dtrack report --project Dependency-Track --version 3.8.0 --template ./examples/project-report.html --output report.html
+$ ./dtrack report \
+    --project-name Dependency-Track \
+    --project-version 3.8.0 \
+    --template ./examples/project-report.html \
+    --output report.html
 ```

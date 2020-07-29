@@ -1,12 +1,13 @@
 package dtrack
 
 type Component struct {
-	UUID       string `json:"uuid"`
-	Name       string `json:"name"`
-	Group      string `json:"group"`
-	Version    string `json:"version"`
-	PackageURL string `json:"purl"`
-	Internal   bool   `json:"isInternal"`
+	UUID            string  `json:"uuid"`
+	Name            string  `json:"name"`
+	Group           string  `json:"group"`
+	Version         string  `json:"version"`
+	PackageURL      string  `json:"purl"`
+	Internal        bool    `json:"isInternal"`
+	ResolvedLicense License `json:"resolvedLicense"`
 }
 
 func (c Client) GetComponent(uuid string) (*Component, error) {

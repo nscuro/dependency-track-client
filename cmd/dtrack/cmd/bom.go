@@ -8,6 +8,7 @@ import (
 
 	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -51,15 +52,9 @@ func initBomGetCmd() {
 }
 
 func runBomUploadCmd(cmd *cobra.Command, _ []string) {
+	dtrackClient := dtrack.NewClient(viper.GetString("url"), viper.GetString("api-key"))
 	bomPath, _ := cmd.Flags().GetString("bom")
 	autoCreate, _ := cmd.Flags().GetBool("autocreate")
-
-	log.Println("resolving project")
-	_, err := dtrackClient.ResolveProject(pProjectUUID, pProjectName, pProjectVersion)
-	if err != nil {
-		log.Fatal("failed to resolve project: ", err)
-		return
-	}
 
 	log.Println("reading bom")
 	bomContent, err := ioutil.ReadFile(bomPath)
@@ -84,6 +79,8 @@ func runBomUploadCmd(cmd *cobra.Command, _ []string) {
 }
 
 func runBomGetCmd(cmd *cobra.Command, _ []string) {
+	dtrackClient := dtrack.NewClient(viper.GetString("url"), viper.GetString("api-key"))
+
 	log.Println("resolving project")
 	project, err := dtrackClient.ResolveProject(pProjectUUID, pProjectName, pProjectVersion)
 	if err != nil {
@@ -91,6 +88,7 @@ func runBomGetCmd(cmd *cobra.Command, _ []string) {
 		return
 	}
 
+	log.Println("retrieving bom")
 	bom, err := dtrackClient.ExportProjectAsCycloneDX(project.UUID)
 	if err != nil {
 		log.Fatal("retrieving bom failed: ", err)
@@ -103,7 +101,8 @@ func runBomGetCmd(cmd *cobra.Command, _ []string) {
 		return
 	}
 
-	if err = ioutil.WriteFile(output, []byte(bom), 0); err != nil {
+	log.Printf("writing bom to %s\n", output)
+	if err = ioutil.WriteFile(output, []byte(bom), 0644); err != nil {
 		log.Fatal("failed to write output file: ", err)
 	}
 }

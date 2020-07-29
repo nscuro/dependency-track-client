@@ -12,6 +12,7 @@ type ProjectReportContext struct {
 	Project    dtrack.Project
 	Components []dtrack.Component
 	Findings   []dtrack.Finding
+	Licenses   []dtrack.License
 }
 
 type Generator struct {
@@ -46,10 +47,30 @@ func (g Generator) GenerateProjectReport(project *dtrack.Project, templatePath s
 		return err
 	}
 
+	log.Println("collecting licenses")
+	licenses := make([]dtrack.License, 0)
+	for _, component := range components {
+		if component.ResolvedLicense.UUID == "" {
+			continue
+		}
+
+		alreadyAdded := false
+		for _, license := range licenses {
+			if component.ResolvedLicense.UUID == license.UUID {
+				alreadyAdded = true
+				break
+			}
+		}
+		if !alreadyAdded {
+			licenses = append(licenses, component.ResolvedLicense)
+		}
+	}
+
 	reportContext := ProjectReportContext{
 		Project:    *project,
 		Components: components,
 		Findings:   findings,
+		Licenses:   licenses,
 	}
 
 	log.Println("writing report")

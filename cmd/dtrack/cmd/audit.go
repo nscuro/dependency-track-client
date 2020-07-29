@@ -10,6 +10,7 @@ import (
 	"github.com/nscuro/dependency-track-client/internal/audit"
 	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var auditCmd = &cobra.Command{
@@ -32,6 +33,7 @@ func init() {
 }
 
 func runAuditCmd(cmd *cobra.Command, _ []string) {
+	dtrackClient := dtrack.NewClient(viper.GetString("url"), viper.GetString("api-key"))
 	bomPath, _ := cmd.Flags().GetString("bom")
 	autoCreate, _ := cmd.Flags().GetBool("autocreate")
 

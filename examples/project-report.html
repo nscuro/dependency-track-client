@@ -1,0 +1,92 @@
+<html>
+
+<head>
+    <title>Project Report</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <h2>Executive Summary</h2>
+        <div>
+            The project dependends on a total of {{.Components | len}} components. {{.Findings | len}} vulnerabilities
+            have been identified.
+        </div>
+        <h2>Project</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Version</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{.Project.Name}}</td>
+                    <td>{{.Project.Version}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Components</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Group</th>
+                    <th scope="col">Version</th>
+                    <th scope="col">License</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Components}}
+                <tr id="{{.PackageURL | urlquery}}">
+                    <td>{{.Name}}</td>
+                    <td>{{.Group}}</td>
+                    <td>{{.Version}}</td>
+                    <td>{{if .ResolvedLicense.UUID}}<a href="#{{.ResolvedLicense.LicenseID | urlquery}}">{{.ResolvedLicense.LicenseID}}{{else}} - {{end}}</a></td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        <h2>Vulnerabilities</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Component</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Findings}}
+                <tr id="{{.Vulnerability.VulnID | urlquery}}">
+                    <td>{{.Vulnerability.VulnID}}</td>
+                    <td><a href="#{{.Component.PackageURL | urlquery}}">{{.Component.Name}}</a></td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        <h2>Licenses</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Licenses}}
+                <tr id="{{.LicenseID | urlquery}}">
+                    <td>{{.LicenseID}}</td>
+                    <td>{{.Name}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

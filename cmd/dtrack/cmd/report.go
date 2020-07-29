@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"github.com/nscuro/dependency-track-client/internal/report"
+	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var reportCmd = &cobra.Command{
@@ -27,6 +29,8 @@ func init() {
 }
 
 func runReportCmd(cmd *cobra.Command, _ []string) {
+	dtrackClient := dtrack.NewClient(viper.GetString("url"), viper.GetString("api-key"))
+
 	templatePath, _ := cmd.Flags().GetString("template")
 	outputPath, _ := cmd.Flags().GetString("output")
 

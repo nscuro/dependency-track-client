@@ -36,11 +36,21 @@ $ export DTRACK_API_KEY=0sl67mjen99zxb2y
 ### Audit
 
 ```
-$ ./dtrack audit --project Dependency-Track --version 3.8.0 --bom ./bom.xml --autocreate
+$ ./dtrack audit --project-name Dependency-Track --project-version 3.8.0 --bom ./bom.xml --autocreate
+```
+
+### BOM
+
+```
+$ ./dtrack bom get --project-name Dependency-Track --project-version 3.8.0 -o bom.xml
+```
+
+```
+$ ./dtrack bom upload --project-name Dependency-Track --project-version 3.8.0 --bom bom.xml --autocreate
 ```
 
 ### Report
 
 ```
-$ ./dtrack report --project Dependency-Track --version 3.8.0 --template ./examples/report.tpl --output report.html
+$ ./dtrack report --project Dependency-Track --version 3.8.0 --template ./examples/project-report.html --output report.html
 ```

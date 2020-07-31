@@ -9,23 +9,23 @@
 ## Usage
 
 ```
-$ ./dtrack -h
-Usage:
+age:
   dtrack [command]
 
 Available Commands:
-  audit       audit for vulnerabilities
-  bom         retrieve or upload boms
+  audit       Audit for vulnerabilities
+  bom         Export or upload BOMs
   help        Help about any command
-  report      generate reports
+  report      Generate reports
+  version     Display version information
 
 Flags:
-  -k, --api-key string           dependency-track api key
+  -k, --api-key string           Dependency-Track API key
   -h, --help                     help for dtrack
-      --project-name string      project name
-      --project-uuid string      project uuid
-      --project-version string   project version
-  -u, --url string               dependency-track base url
+      --project string           Project UUID
+      --project-name string      Project name
+      --project-version string   Project version
+  -u, --url string               Dependency-Track URL
 
 Use "dtrack [command] --help" for more information about a command.
 ```

@@ -30,7 +30,7 @@ func TestGetComponent(t *testing.T) {
 	}))
 	defer mockServer.Close()
 
-	client := NewClient(mockServer.URL, "apiKey")
+	client, _ := NewClient(mockServer.URL, "apiKey")
 
 	component, err := client.GetComponent("4d5cd8df-cff7-4212-a038-91ae4ab79396")
 	assert.NoError(t, err)

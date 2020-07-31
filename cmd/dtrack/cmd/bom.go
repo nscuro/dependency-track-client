@@ -8,13 +8,12 @@ import (
 
 	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
 	bomCmd = &cobra.Command{
 		Use:   "bom",
-		Short: "Retrieve or upload BOMs",
+		Short: "Export or upload BOMs",
 	}
 
 	bomUploadCmd = &cobra.Command{
@@ -23,10 +22,10 @@ var (
 		Run:   runBomUploadCmd,
 	}
 
-	bomGetCmd = &cobra.Command{
-		Use:   "get",
-		Short: "Retrieve a BOM",
-		Run:   runBomGetCmd,
+	bomExportCmd = &cobra.Command{
+		Use:   "export",
+		Short: "Export a BOM",
+		Run:   runBomExportCmd,
 	}
 )
 
@@ -35,7 +34,7 @@ func init() {
 	initBomGetCmd()
 
 	bomCmd.AddCommand(bomUploadCmd)
-	bomCmd.AddCommand(bomGetCmd)
+	bomCmd.AddCommand(bomExportCmd)
 
 	rootCmd.AddCommand(bomCmd)
 }
@@ -49,11 +48,10 @@ func initBomUploadCmd() {
 }
 
 func initBomGetCmd() {
-	bomGetCmd.Flags().StringP("output", "o", "", "")
+	bomExportCmd.Flags().StringP("output", "o", "", "")
 }
 
 func runBomUploadCmd(cmd *cobra.Command, _ []string) {
-	dtrackClient := dtrack.NewClient(viper.GetString("url"), viper.GetString("api-key"))
 	bomPath, _ := cmd.Flags().GetString("bom")
 	autoCreate, _ := cmd.Flags().GetBool("autocreate")
 
@@ -79,9 +77,7 @@ func runBomUploadCmd(cmd *cobra.Command, _ []string) {
 	log.Println("bom was successfully uploaded")
 }
 
-func runBomGetCmd(cmd *cobra.Command, _ []string) {
-	dtrackClient := dtrack.NewClient(viper.GetString("url"), viper.GetString("api-key"))
-
+func runBomExportCmd(cmd *cobra.Command, _ []string) {
 	log.Println("resolving project")
 	project, err := dtrackClient.ResolveProject(projectUUID, projectName, projectVersion)
 	if err != nil {

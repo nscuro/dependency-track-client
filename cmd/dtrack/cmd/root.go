@@ -1,18 +1,24 @@
 package cmd
 
 import (
+	"fmt"
+
+	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
 	rootCmd = &cobra.Command{
-		Use: "dtrack",
+		Use:               "dtrack",
+		PersistentPreRunE: preRunRootCmd,
 	}
 
 	projectUUID    string
 	projectName    string
 	projectVersion string
+
+	dtrackClient *dtrack.Client
 )
 
 func init() {
@@ -29,6 +35,16 @@ func init() {
 	viper.SetEnvPrefix("DTRACK")
 	viper.BindEnv("url")
 	viper.BindEnv("apikey")
+}
+
+func preRunRootCmd(_ *cobra.Command, _ []string) error {
+	client, err := dtrack.NewClient(viper.GetString("url"), viper.GetString("apikey"))
+	if err != nil {
+		return fmt.Errorf("failed to initialize dependency-track client: %w", err)
+	}
+
+	dtrackClient = client
+	return nil
 }
 
 func Execute() error {

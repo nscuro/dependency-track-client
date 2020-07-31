@@ -10,18 +10,26 @@ import (
 	"github.com/nscuro/dependency-track-client/internal/audit"
 	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var auditCmd = &cobra.Command{
-	Use:   "audit",
-	Short: "Audit for vulnerabilities",
-	Run:   runAuditCmd,
+var (
+	auditCmd = &cobra.Command{
+		Use:   "audit",
+		Short: "Audit for vulnerabilities",
+		Run:   runAuditCmd,
+	}
+
+	auditOpts AuditOptions
+)
+
+type AuditOptions struct {
+	BOMPath    string
+	AutoCreate bool
 }
 
 func init() {
-	auditCmd.Flags().StringP("bom", "b", "", "BOM path")
-	auditCmd.Flags().Bool("autocreate", false, "Automatically create project")
+	auditCmd.Flags().StringVarP(&auditOpts.BOMPath, "bom", "b", "", "BOM path")
+	auditCmd.Flags().BoolVar(&auditOpts.AutoCreate, "autocreate", false, "Automatically create project")
 
 	auditCmd.MarkFlagRequired("bom")
 	auditCmd.MarkFlagFilename("bom", "xml", "json")
@@ -30,10 +38,6 @@ func init() {
 }
 
 func runAuditCmd(cmd *cobra.Command, _ []string) {
-	dtrackClient := dtrack.NewClient(viper.GetString("url"), viper.GetString("api-key"))
-	bomPath, _ := cmd.Flags().GetString("bom")
-	autoCreate, _ := cmd.Flags().GetBool("autocreate")
-
 	log.Println("resolving project")
 	project, err := dtrackClient.ResolveProject(projectUUID, projectName, projectVersion)
 	if err != nil {
@@ -42,7 +46,7 @@ func runAuditCmd(cmd *cobra.Command, _ []string) {
 	}
 
 	log.Println("reading bom")
-	bomContent, err := ioutil.ReadFile(bomPath)
+	bomContent, err := ioutil.ReadFile(auditOpts.BOMPath)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -53,7 +57,7 @@ func runAuditCmd(cmd *cobra.Command, _ []string) {
 		ProjectUUID:    projectUUID,
 		ProjectName:    projectName,
 		ProjectVersion: projectVersion,
-		AutoCreate:     autoCreate,
+		AutoCreate:     auditOpts.AutoCreate,
 		BOM:            base64.StdEncoding.EncodeToString(bomContent),
 	})
 	if err != nil {

@@ -10,25 +10,25 @@ var (
 		Use: "dtrack",
 	}
 
-	pProjectUUID    string
-	pProjectName    string
-	pProjectVersion string
+	projectUUID    string
+	projectName    string
+	projectVersion string
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringP("url", "u", "", "dependency-track base url")
-	rootCmd.PersistentFlags().StringP("api-key", "k", "", "dependency-track api key")
+	rootCmd.PersistentFlags().StringP("url", "u", "", "Dependency-Track URL")
+	rootCmd.PersistentFlags().StringP("api-key", "k", "", "Dependency-Track API key")
 
-	rootCmd.PersistentFlags().StringVar(&pProjectUUID, "project-uuid", "", "project uuid")
-	rootCmd.PersistentFlags().StringVar(&pProjectName, "project-name", "", "project name")
-	rootCmd.PersistentFlags().StringVar(&pProjectVersion, "project-version", "", "project version")
+	rootCmd.PersistentFlags().StringVar(&projectUUID, "project", "", "Project UUID")
+	rootCmd.PersistentFlags().StringVar(&projectName, "project-name", "", "Project name")
+	rootCmd.PersistentFlags().StringVar(&projectVersion, "project-version", "", "Project version")
 
 	viper.BindPFlag("url", rootCmd.PersistentFlags().Lookup("url"))
-	viper.BindPFlag("api-key", rootCmd.PersistentFlags().Lookup("api-key"))
+	viper.BindPFlag("apikey", rootCmd.PersistentFlags().Lookup("api-key"))
 
 	viper.SetEnvPrefix("DTRACK")
-	viper.BindEnv("url", "URL")
-	viper.BindEnv("api-key", "API_KEY")
+	viper.BindEnv("url")
+	viper.BindEnv("apikey")
 }
 
 func Execute() error {

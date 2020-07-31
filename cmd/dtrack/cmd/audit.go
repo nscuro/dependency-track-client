@@ -15,16 +15,13 @@ import (
 
 var auditCmd = &cobra.Command{
 	Use:   "audit",
-	Short: "audit for vulnerabilities",
+	Short: "Audit for vulnerabilities",
 	Run:   runAuditCmd,
 }
 
 func init() {
-	auditCmd.Flags().StringP("project", "p", "", "project name")
-	auditCmd.Flags().StringP("version", "v", "", "project version")
-	auditCmd.Flags().String("uuid", "", "project uuid")
-	auditCmd.Flags().StringP("bom", "b", "", "bom path")
-	auditCmd.Flags().Bool("autocreate", false, "automatically create project")
+	auditCmd.Flags().StringP("bom", "b", "", "BOM path")
+	auditCmd.Flags().Bool("autocreate", false, "Automatically create project")
 
 	auditCmd.MarkFlagRequired("bom")
 	auditCmd.MarkFlagFilename("bom", "xml", "json")
@@ -38,7 +35,7 @@ func runAuditCmd(cmd *cobra.Command, _ []string) {
 	autoCreate, _ := cmd.Flags().GetBool("autocreate")
 
 	log.Println("resolving project")
-	project, err := dtrackClient.ResolveProject(pProjectUUID, pProjectName, pProjectVersion)
+	project, err := dtrackClient.ResolveProject(projectUUID, projectName, projectVersion)
 	if err != nil {
 		log.Fatal("failed to resolve project: ", err)
 		return
@@ -53,9 +50,9 @@ func runAuditCmd(cmd *cobra.Command, _ []string) {
 
 	log.Println("uploading bom")
 	uploadToken, err := dtrackClient.UploadBOM(dtrack.BOMSubmitRequest{
-		ProjectUUID:    pProjectUUID,
-		ProjectName:    pProjectName,
-		ProjectVersion: pProjectVersion,
+		ProjectUUID:    projectUUID,
+		ProjectName:    projectName,
+		ProjectVersion: projectVersion,
 		AutoCreate:     autoCreate,
 		BOM:            base64.StdEncoding.EncodeToString(bomContent),
 	})

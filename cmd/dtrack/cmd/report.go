@@ -12,13 +12,13 @@ import (
 
 var reportCmd = &cobra.Command{
 	Use:   "report",
-	Short: "generate reports",
+	Short: "Generate reports",
 	Run:   runReportCmd,
 }
 
 func init() {
-	reportCmd.Flags().StringP("template", "t", "", "template path")
-	reportCmd.Flags().StringP("output", "o", "", "output path")
+	reportCmd.Flags().StringP("template", "t", "", "Template path")
+	reportCmd.Flags().StringP("output", "o", "", "Output path")
 
 	reportCmd.MarkFlagRequired("template")
 	reportCmd.MarkFlagRequired("output")
@@ -36,7 +36,7 @@ func runReportCmd(cmd *cobra.Command, _ []string) {
 
 	reportGenerator := report.NewGenerator(dtrackClient)
 
-	project, err := dtrackClient.ResolveProject(pProjectUUID, pProjectName, pProjectVersion)
+	project, err := dtrackClient.ResolveProject(projectUUID, projectName, projectVersion)
 	if err != nil {
 		log.Fatal("failed to resolve project: ", err)
 		return

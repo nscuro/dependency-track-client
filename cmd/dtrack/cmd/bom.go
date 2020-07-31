@@ -14,18 +14,18 @@ import (
 var (
 	bomCmd = &cobra.Command{
 		Use:   "bom",
-		Short: "retrieve or upload boms",
+		Short: "Retrieve or upload BOMs",
 	}
 
 	bomUploadCmd = &cobra.Command{
 		Use:   "upload",
-		Short: "upload a bom",
+		Short: "Upload a BOM",
 		Run:   runBomUploadCmd,
 	}
 
 	bomGetCmd = &cobra.Command{
 		Use:   "get",
-		Short: "retrieve a bom",
+		Short: "Retrieve a BOM",
 		Run:   runBomGetCmd,
 	}
 )
@@ -41,8 +41,8 @@ func init() {
 }
 
 func initBomUploadCmd() {
-	bomUploadCmd.Flags().StringP("bom", "b", "", "bom path")
-	bomUploadCmd.Flags().Bool("autocreate", false, "automatically create project")
+	bomUploadCmd.Flags().StringP("bom", "b", "", "BOM path")
+	bomUploadCmd.Flags().Bool("autocreate", false, "Automatically create project")
 
 	bomUploadCmd.MarkFlagRequired("bom")
 	bomUploadCmd.MarkFlagFilename("bom", "xml", "json")
@@ -66,9 +66,9 @@ func runBomUploadCmd(cmd *cobra.Command, _ []string) {
 
 	log.Println("uploading bom")
 	_, err = dtrackClient.UploadBOM(dtrack.BOMSubmitRequest{
-		ProjectUUID:    pProjectUUID,
-		ProjectName:    pProjectName,
-		ProjectVersion: pProjectVersion,
+		ProjectUUID:    projectUUID,
+		ProjectName:    projectName,
+		ProjectVersion: projectVersion,
 		AutoCreate:     autoCreate,
 		BOM:            base64.StdEncoding.EncodeToString(bomContent),
 	})
@@ -83,7 +83,7 @@ func runBomGetCmd(cmd *cobra.Command, _ []string) {
 	dtrackClient := dtrack.NewClient(viper.GetString("url"), viper.GetString("api-key"))
 
 	log.Println("resolving project")
-	project, err := dtrackClient.ResolveProject(pProjectUUID, pProjectName, pProjectVersion)
+	project, err := dtrackClient.ResolveProject(projectUUID, projectName, projectVersion)
 	if err != nil {
 		log.Fatal("failed to resolve project: ", err)
 		return

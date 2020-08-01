@@ -13,7 +13,7 @@ import (
 var (
 	bomCmd = &cobra.Command{
 		Use:   "bom",
-		Short: "Export or upload BOMs",
+		Short: "Upload and export BOMs",
 	}
 
 	bomUploadCmd = &cobra.Command{

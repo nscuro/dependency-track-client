@@ -1,6 +1,9 @@
 package dtrack
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Project struct {
 	UUID        string `json:"uuid"`
@@ -66,4 +69,40 @@ func (c Client) ResolveProject(uuid string, name string, version string) (*Proje
 	} else {
 		return c.LookupProject(name, version)
 	}
+}
+
+func (c Client) GetProjects() ([]Project, error) {
+	page := 1
+	hasMorePages := true
+	projects := make([]Project, 0)
+	for hasMorePages {
+		res, err := c.restClient.R().
+			SetResult(make([]Project, 0)).
+			SetQueryParams(map[string]string{
+				"pageSize":   "100",
+				"pageNumber": strconv.Itoa(page),
+			}).
+			Get("/api/v1/project")
+		if err != nil {
+			return nil, err
+		}
+
+		if err = c.checkResponse(res, 200); err != nil {
+			return nil, err
+		}
+
+		projectsOnPage, ok := res.Result().(*[]Project)
+		if !ok {
+			return nil, ErrInvalidResponseType
+		}
+
+		projects = append(projects, *projectsOnPage...)
+
+		totalCount, _ := strconv.Atoi(res.Header().Get("X-Total-Count"))
+
+		hasMorePages = len(projects) < totalCount
+		page++
+	}
+
+	return projects, nil
 }

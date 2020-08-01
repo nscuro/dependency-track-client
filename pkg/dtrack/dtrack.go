@@ -13,6 +13,7 @@ var (
 	ErrInvalidStatus       = errors.New("invalid status")
 	ErrNotFound            = errors.New("not found")
 	ErrUnauthorized        = errors.New("unauthorized")
+	ErrInternalServerError = errors.New("internal server error")
 	ErrInvalidResponseType = errors.New("invalid response type")
 )
 
@@ -46,6 +47,8 @@ func (c Client) checkResponse(response *resty.Response, expectedStati ...int) er
 		return ErrForbidden
 	case 404:
 		return ErrNotFound
+	case 500:
+		return ErrInternalServerError
 	}
 
 	if len(expectedStati) > 0 {

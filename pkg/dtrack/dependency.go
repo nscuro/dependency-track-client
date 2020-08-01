@@ -18,7 +18,7 @@ func (c Client) GetDependenciesForProject(projectUUID string) ([]Dependency, err
 			}).
 			SetResult(make([]Dependency, 0)).
 			SetQueryParams(map[string]string{
-				"pageSize":   "100",
+				"pageSize":   "50",
 				"pageNumber": strconv.Itoa(page),
 			}).
 			Get("/api/v1/dependency/project/{uuid}")

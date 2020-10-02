@@ -9,35 +9,35 @@
 ## Usage
 
 ```
-age:
+Usage:
   dtrack [command]
 
 Available Commands:
   audit       Audit for vulnerabilities
-  bom         Export or upload BOMs
+  bom         Export and Upload BOMs
   help        Help about any command
   report      Generate reports
   version     Display version information
 
 Flags:
-  -k, --api-key string           Dependency-Track API key
+  -k, --apikey string            Dependency-Track API Key
   -h, --help                     help for dtrack
       --project string           Project UUID
-      --project-name string      Project name
-      --project-version string   Project version
+      --project-name string      Project Name
+      --project-version string   Project Version
   -u, --url string               Dependency-Track URL
-
-Use "dtrack [command] --help" for more information about a command.
 ```
 
 Dependency-Track's URL and the API key can be provided via environment variables as well:
 
 ```
-$ export DTRACK_BASE_URL=https://dependencytrack.evilcorp.com
-$ export DTRACK_API_KEY=0sl67mjen99zxb2y
+$ export DTRACK_URL=https://dependencytrack.example.com
+$ export DTRACK_APIKEY=0sl67mjen99zxb2y
 ```
 
-### Audit
+### Examples
+
+#### Audit
 
 ```
 $ ./dtrack audit \
@@ -46,14 +46,18 @@ $ ./dtrack audit \
     --bom ./bom.xml --autocreate
 ```
 
-### BOM
+#### BOM
+
+##### Export
 
 ```
-$ ./dtrack bom get \
+$ ./dtrack bom export \
     --project-name Dependency-Track \
     --project-version 3.8.0 \
     -o bom.xml
 ```
+
+##### Upload
 
 ```
 $ ./dtrack bom upload \
@@ -62,12 +66,12 @@ $ ./dtrack bom upload \
     --bom bom.xml --autocreate
 ```
 
-### Report
+#### Report
 
 ```
 $ ./dtrack report \
     --project-name Dependency-Track \
     --project-version 3.8.0 \
-    --template ./examples/project-report.html \
+    --template ./examples/project-report.gohtml \
     --output report.html
 ```

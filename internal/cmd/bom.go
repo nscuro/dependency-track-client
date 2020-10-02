@@ -40,6 +40,7 @@ type bomExportOptions struct {
 type bomUploadOptions struct {
 	bomFilePath string
 	autoCreate  bool
+	wait        bool
 }
 
 func init() {
@@ -48,6 +49,7 @@ func init() {
 
 	bomUploadCmd.Flags().StringVar(&bomUploadOpts.bomFilePath, "bom", "", "BOM to upload")
 	bomUploadCmd.Flags().BoolVar(&bomUploadOpts.autoCreate, "autocreate", false, "Automatically create project")
+	bomUploadCmd.Flags().BoolVar(&bomUploadOpts.wait, "wait", false, "Wait for BOM processing to complete")
 	bomCmd.AddCommand(bomUploadCmd)
 
 	rootCmd.AddCommand(bomCmd)

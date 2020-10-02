@@ -11,8 +11,9 @@ import (
 
 var (
 	versionCmd = &cobra.Command{
-		Use: "version",
-		Run: runVersionCmd,
+		Use:   "version",
+		Short: "Display version information",
+		Run:   runVersionCmd,
 	}
 	versionOpts versionOptions
 )

@@ -10,7 +10,6 @@ import (
 
 var (
 	ErrForbidden           = errors.New("forbidden")
-	ErrInvalidStatus       = errors.New("invalid status")
 	ErrNotFound            = errors.New("not found")
 	ErrUnauthorized        = errors.New("unauthorized")
 	ErrInternalServerError = errors.New("internal server error")
@@ -57,7 +56,7 @@ func (c Client) checkResponse(response *resty.Response, expectedStati ...int) er
 				return nil
 			}
 		}
-		return ErrInvalidStatus
+		return fmt.Errorf("expected response status to be any of %v, but was %d", expectedStati, response.StatusCode())
 	}
 
 	return nil

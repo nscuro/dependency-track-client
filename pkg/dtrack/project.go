@@ -35,7 +35,7 @@ func (c Client) GetProject(uuid string) (*Project, error) {
 	return project, nil
 }
 
-func (c Client) LookupProject(name string, version string) (*Project, error) {
+func (c Client) LookupProject(name, version string) (*Project, error) {
 	res, err := c.restClient.R().
 		SetQueryParams(map[string]string{
 			"name":    name,
@@ -59,7 +59,7 @@ func (c Client) LookupProject(name string, version string) (*Project, error) {
 	return project, nil
 }
 
-func (c Client) ResolveProject(uuid string, name string, version string) (*Project, error) {
+func (c Client) ResolveProject(uuid, name, version string) (*Project, error) {
 	if uuid == "" && (name == "" || version == "") {
 		return nil, fmt.Errorf("either project uuid or name AND version must be provided")
 	}

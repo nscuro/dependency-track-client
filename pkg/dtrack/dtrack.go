@@ -21,7 +21,7 @@ type Client struct {
 	restClient *resty.Client
 }
 
-func NewClient(baseURL string, apiKey string) (*Client, error) {
+func NewClient(baseURL, apiKey string) (*Client, error) {
 	if baseURL == "" {
 		return nil, fmt.Errorf("no base url provided")
 	} else if _, err := url.ParseRequestURI(baseURL); err != nil {

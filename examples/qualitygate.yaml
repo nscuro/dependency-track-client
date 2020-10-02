@@ -1,0 +1,9 @@
+max-risk-score: 50
+max-severity: HIGH
+severity-thresholds:
+  CRITICAL: 0
+  HIGH: 0
+  MEDIUM: 5
+  # LOW: 9999
+  # INFO: 9999
+  # UNASSIGNED: 9999

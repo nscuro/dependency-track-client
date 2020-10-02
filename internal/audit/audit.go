@@ -23,9 +23,9 @@ var (
 )
 
 type QualityGate struct {
-	MaxRiskScore       int64
-	MaxSeverity        string
-	SeverityThresholds map[string]int
+	MaxRiskScore       int64          `yaml:"max-risk-score"`
+	MaxSeverity        string         `yaml:"max-severity"`
+	SeverityThresholds map[string]int `yaml:"severity-thresholds"`
 }
 
 func (q QualityGate) Evaluate(findings []dtrack.Finding) error {

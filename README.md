@@ -1,6 +1,7 @@
 # dependency-track-client
 
-![Build Status](https://github.com/nscuro/dependency-track-client/workflows/Continuous%20Integration/badge.svg)
+[![Build Status](https://github.com/nscuro/dependency-track-client/workflows/Continuous%20Integration/badge.svg)](https://github.com/nscuro/dependency-track-client/actions?query=workflow%3A%22Continuous+Integration%22)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/nscuro/dependency-track-client)](https://pkg.go.dev/github.com/nscuro/dependency-track-client)
 
 ## Installation
 

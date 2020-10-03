@@ -41,15 +41,14 @@ func runVersionCmd(_ *cobra.Command, _ []string) {
 	var serverVersion string
 	if about, err := mustGetDTrackClient().GetAbout(); err == nil {
 		serverVersion = about.Version
-		fmt.Printf("Server: %s\n", about.Version)
 	} else {
 		log.Fatalf("failed to retrieve server version: %v", err)
 	}
 
 	if !showBoth && versionOpts.serverOnly {
-		log.Println(serverVersion)
+		fmt.Println(serverVersion)
 		return
 	}
 
-	log.Printf("Client: %s\nServer: %s\n", version.Version, serverVersion)
+	fmt.Printf("Client: %s\nServer: %s\n", version.Version, serverVersion)
 }

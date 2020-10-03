@@ -16,6 +16,11 @@ With `dtrack` command:
 GO111MODULE=on go get -v github.com/nscuro/dependency-track-client/...
 ```
 
+## Compatibility
+
+* Go >= 1.15
+* Dependency-Track >= 4.0.0
+
 ## Usage
 
 ```

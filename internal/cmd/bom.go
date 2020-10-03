@@ -105,5 +105,5 @@ func runBomUploadCmd(_ *cobra.Command, _ []string) {
 		log.Fatalf("failed to upload BOM: %v", err)
 	}
 
-	log.Println(token)
+	fmt.Println(token)
 }

@@ -32,3 +32,26 @@ func (c Client) GetComponent(uuid string) (*Component, error) {
 
 	return component, nil
 }
+
+func (c Client) GetComponentsForProject(uuid string) ([]Component, error) {
+	res, err := c.restClient.R().
+		SetPathParams(map[string]string{
+			"uuid": uuid,
+		}).
+		SetResult(make([]Component, 0)).
+		Get("/api/v1/component/project/{uuid}")
+	if err != nil {
+		return nil, err
+	}
+
+	if err = c.checkResponse(res, 200); err != nil {
+		return nil, err
+	}
+
+	components, ok := res.Result().(*[]Component)
+	if !ok {
+		return nil, ErrInvalidResponseType
+	}
+
+	return *components, nil
+}

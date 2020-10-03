@@ -31,14 +31,9 @@ func (g Generator) GenerateProjectReport(project *dtrack.Project, templatePath s
 	}
 
 	log.Println("retrieving project dependencies")
-	dependencies, err := g.dtrackClient.GetDependenciesForProject(project.UUID)
+	components, err := g.dtrackClient.GetComponentsForProject(project.UUID)
 	if err != nil {
 		return err
-	}
-
-	components := make([]dtrack.Component, len(dependencies))
-	for i := 0; i < len(dependencies); i++ {
-		components[i] = dependencies[i].Component
 	}
 
 	log.Println("retrieving findings for project")

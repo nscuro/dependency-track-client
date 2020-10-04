@@ -3,6 +3,8 @@
 [![Build Status](https://github.com/nscuro/dependency-track-client/workflows/Continuous%20Integration/badge.svg)](https://github.com/nscuro/dependency-track-client/actions?query=workflow%3A%22Continuous+Integration%22)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/nscuro/dependency-track-client)](https://pkg.go.dev/github.com/nscuro/dependency-track-client)
 
+Unofficial Go client library and CLI for [Dependency-Track](https://github.com/DependencyTrack/dependency-track)
+
 ## Installation
 
 For library usage:
@@ -21,6 +23,11 @@ GO111MODULE=on go get -v github.com/nscuro/dependency-track-client/...
 
 * Go >= 1.15
 * Dependency-Track >= 4.0.0
+
+## API Coverage
+
+The library primarily covers those parts of the Dependency-Track API that are needed for the CLI application.
+If you'd like to use this library, and your desired functionality is not yet available, please consider creating a PR.
 
 ## Usage
 

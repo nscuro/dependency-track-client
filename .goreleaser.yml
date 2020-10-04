@@ -1,0 +1,30 @@
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod download
+builds:
+  - id: "dtrack"
+    main: ./cmd/dtrack/main.go
+    env:
+      - GO111MODULE=on
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/nscuro/dependency-track-client/internal/version.Version={{.Version}}
+    goos:
+      - windows
+      - linux
+      - darwin
+    goarch:
+      - amd64
+archives:
+  - replacements:
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      amd64: x86_64
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

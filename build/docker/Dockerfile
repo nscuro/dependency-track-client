@@ -1,9 +1,9 @@
 FROM golang:1.15-alpine as build
-RUN apk --no-cache add git
+RUN apk --no-cache add build-base git
 WORKDIR /opt/dtrack
 COPY . .
-RUN GO111MODULE=on go build -v ./cmd/dtrack
+RUN make install
 
 FROM alpine:latest
-COPY --from=build /opt/dtrack/dtrack /bin/dtrack
+COPY --from=build /go/bin/dtrack /bin/dtrack
 ENTRYPOINT [ "/bin/dtrack" ]

@@ -59,6 +59,8 @@ func (c Client) LookupProject(name, version string) (*Project, error) {
 	return project, nil
 }
 
+// ResolveProject is a convenience method that either calls GetProject or LookupProject,
+// depending on whether a UUID or name and version are provided
 func (c Client) ResolveProject(uuid, name, version string) (*Project, error) {
 	if uuid == "" && (name == "" || version == "") {
 		return nil, fmt.Errorf("either project uuid or name AND version must be provided")

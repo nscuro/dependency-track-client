@@ -22,14 +22,17 @@ var (
 	}
 )
 
+// TODO: Add functionality to read from YAML file
 type QualityGate struct {
 	MaxRiskScore       int64          `yaml:"max-risk-score"`
 	MaxSeverity        string         `yaml:"max-severity"`
 	SeverityThresholds map[string]int `yaml:"severity-thresholds"`
 }
 
-func (q QualityGate) Evaluate(findings []dtrack.Finding) error {
-	if q.MaxRiskScore > 0 && calculateInheritedRiskScore(findings) > q.MaxRiskScore {
+// TODO: Run through all quality gates, don't abort after the first failure
+// TODO: Return a structure with detailed info about the failures
+func (q QualityGate) Evaluate(metrics dtrack.ProjectMetrics, findings []dtrack.Finding) error {
+	if q.MaxRiskScore > 0 && metrics.InheritedRiskScore > q.MaxRiskScore {
 		return ErrMaxRiskScoreExceeded
 	}
 
@@ -57,28 +60,4 @@ func (q QualityGate) Evaluate(findings []dtrack.Finding) error {
 	}
 
 	return nil
-}
-
-func calculateInheritedRiskScore(findings []dtrack.Finding) int64 {
-	critical, high, medium, low, info, unassigned := 0, 0, 0, 0, 0, 0
-
-	for _, finding := range findings {
-		switch finding.Vulnerability.Severity {
-		case dtrack.CriticalSeverity:
-			critical++
-		case dtrack.HighSeverity:
-			high++
-		case dtrack.MediumSeverity:
-			medium++
-		case dtrack.LowSeverity:
-			low++
-		case dtrack.InfoSeverity:
-			info++
-		case dtrack.UnassignedSeverity:
-			unassigned++
-		}
-	}
-
-	// https://github.com/DependencyTrack/dependency-track/blob/master/src/main/java/org/dependencytrack/metrics/Metrics.java#L32
-	return int64((critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5))
 }

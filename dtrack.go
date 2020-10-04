@@ -3,12 +3,18 @@ package dtrack
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/go-resty/resty/v2"
 )
 
+const (
+	totalCountHeader = "X-Total-Count"
+)
+
 var (
+	ErrConflict            = errors.New("conflict")
 	ErrForbidden           = errors.New("forbidden")
 	ErrNotFound            = errors.New("not found")
 	ErrUnauthorized        = errors.New("unauthorized")
@@ -20,7 +26,11 @@ type Client struct {
 	restClient *resty.Client
 }
 
-func NewClient(baseURL, apiKey string) (*Client, error) {
+type ClientOptions struct {
+	HttpClient *http.Client
+}
+
+func NewClient(baseURL, apiKey string, options ...ClientOptions) (*Client, error) {
 	if baseURL == "" {
 		return nil, fmt.Errorf("no base url provided")
 	} else if _, err := url.ParseRequestURI(baseURL); err != nil {
@@ -30,7 +40,12 @@ func NewClient(baseURL, apiKey string) (*Client, error) {
 		return nil, fmt.Errorf("no api key provided")
 	}
 
-	restClient := resty.New()
+	var restClient *resty.Client
+	if len(options) > 0 && options[0].HttpClient != nil {
+		restClient = resty.NewWithClient(options[0].HttpClient)
+	} else {
+		restClient = resty.New()
+	}
 	restClient.SetHostURL(baseURL)
 	restClient.SetHeader("X-Api-Key", apiKey)
 	restClient.SetHeader("Accept", "application/json")
@@ -38,7 +53,12 @@ func NewClient(baseURL, apiKey string) (*Client, error) {
 	return &Client{restClient: restClient}, nil
 }
 
-func (c Client) checkResponse(response *resty.Response, expectedStati ...int) error {
+func (c Client) checkResponseStatus(response *resty.Response, expectedStati ...int) error {
+	if len(expectedStati) == 0 {
+		return fmt.Errorf("no expected status code provided")
+	}
+
+	// Handle common API errors
 	switch response.StatusCode() {
 	case 401:
 		return ErrUnauthorized
@@ -46,6 +66,8 @@ func (c Client) checkResponse(response *resty.Response, expectedStati ...int) er
 		return ErrForbidden
 	case 404:
 		return ErrNotFound
+	case 409:
+		return ErrConflict
 	case 500:
 		return ErrInternalServerError
 	}

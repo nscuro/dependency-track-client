@@ -26,7 +26,7 @@ func (c Client) UploadBOM(submission BOMSubmitRequest) (string, error) {
 		return "", err
 	}
 
-	if err = c.checkResponse(res, 200); err != nil {
+	if err = c.checkResponseStatus(res, 200); err != nil {
 		return "", err
 	}
 
@@ -44,7 +44,7 @@ func (c Client) IsTokenBeingProcessed(uploadToken string) (bool, error) {
 		return false, err
 	}
 
-	if err = c.checkResponse(res, 200); err != nil {
+	if err = c.checkResponseStatus(res, 200); err != nil {
 		return false, err
 	}
 
@@ -62,7 +62,7 @@ func (c Client) ExportProjectAsCycloneDX(uuid string) (string, error) {
 		return "", err
 	}
 
-	if err = c.checkResponse(res, 200); err != nil {
+	if err = c.checkResponseStatus(res, 200); err != nil {
 		return "", err
 	}
 

@@ -21,7 +21,7 @@ func (c Client) GetComponent(uuid string) (*Component, error) {
 		return nil, err
 	}
 
-	if err = c.checkResponse(res, 200); err != nil {
+	if err = c.checkResponseStatus(res, 200); err != nil {
 		return nil, err
 	}
 
@@ -44,7 +44,7 @@ func (c Client) GetComponentsForProject(uuid string) ([]Component, error) {
 		return nil, err
 	}
 
-	if err = c.checkResponse(res, 200); err != nil {
+	if err = c.checkResponseStatus(res, 200); err != nil {
 		return nil, err
 	}
 

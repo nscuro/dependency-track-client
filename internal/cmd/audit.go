@@ -96,11 +96,17 @@ loop:
 		log.Fatalf("failed to retrieve findings: %v", err)
 	}
 
+	fmt.Println("retrieving project metrics")
+	metrics, err := dtrackClient.GetCurrentProjectMetrics(project.UUID)
+	if err != nil {
+		log.Fatalf("failed to retrieve project metrics: %v", err)
+	}
+
 	log.Println("evaluating quality gate")
 	gate := audit.QualityGate{
 		MaxSeverity: dtrack.HighSeverity,
 	}
-	if err = gate.Evaluate(findings); err != nil {
+	if err = gate.Evaluate(*metrics, findings); err != nil {
 		log.Fatalf("quality gate failed: %v", err)
 	}
 }

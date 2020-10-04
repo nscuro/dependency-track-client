@@ -6,10 +6,14 @@ import (
 )
 
 type Project struct {
-	UUID        string `json:"uuid"`
-	Name        string `json:"name"`
-	Version     string `json:"version"`
-	Description string `json:"description"`
+	Description            string          `json:"description"`
+	LastBOMImport          int64           `json:"lastBomImport"`
+	LastBOMImportFormat    string          `json:"lastBomImportFormat"`
+	LastInheritedRiskScore int             `json:"lastInheritedRiskScore"`
+	Metrics                *ProjectMetrics `json:"metrics"`
+	Name                   string          `json:"name"`
+	UUID                   string          `json:"uuid"`
+	Version                string          `json:"version"`
 }
 
 func (c Client) GetProject(uuid string) (*Project, error) {
@@ -23,7 +27,7 @@ func (c Client) GetProject(uuid string) (*Project, error) {
 		return nil, err
 	}
 
-	if err = c.checkResponse(res, 200); err != nil {
+	if err = c.checkResponseStatus(res, 200); err != nil {
 		return nil, err
 	}
 
@@ -47,7 +51,7 @@ func (c Client) LookupProject(name, version string) (*Project, error) {
 		return nil, err
 	}
 
-	if err = c.checkResponse(res, 200); err != nil {
+	if err = c.checkResponseStatus(res, 200); err != nil {
 		return nil, err
 	}
 
@@ -73,6 +77,7 @@ func (c Client) ResolveProject(uuid, name, version string) (*Project, error) {
 	}
 }
 
+// GetProject retrieves all projects
 func (c Client) GetProjects() ([]Project, error) {
 	page := 1
 	hasMorePages := true
@@ -89,7 +94,7 @@ func (c Client) GetProjects() ([]Project, error) {
 			return nil, err
 		}
 
-		if err = c.checkResponse(res, 200); err != nil {
+		if err = c.checkResponseStatus(res, 200); err != nil {
 			return nil, err
 		}
 
@@ -100,8 +105,7 @@ func (c Client) GetProjects() ([]Project, error) {
 
 		projects = append(projects, *projectsOnPage...)
 
-		totalCount, _ := strconv.Atoi(res.Header().Get("X-Total-Count"))
-
+		totalCount, _ := strconv.Atoi(res.Header().Get(totalCountHeader))
 		hasMorePages = len(projects) < totalCount
 		page++
 	}

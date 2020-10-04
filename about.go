@@ -24,7 +24,7 @@ func (c Client) GetAbout() (*About, error) {
 		return nil, err
 	}
 
-	if err = c.checkResponse(res, 200); err != nil {
+	if err = c.checkResponseStatus(res, 200); err != nil {
 		return nil, err
 	}
 

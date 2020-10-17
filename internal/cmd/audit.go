@@ -45,7 +45,7 @@ func runAuditCmd(_ *cobra.Command, _ []string) {
 	}
 
 	log.Println("uploading BOM")
-	token, err := dtrackClient.UploadBOM(dtrack.BOMSubmitRequest{
+	token, err := dtrackClient.UploadBOM(dtrack.BOMUploadRequest{
 		ProjectUUID:    project.UUID,
 		ProjectName:    project.Name,
 		ProjectVersion: project.Version,

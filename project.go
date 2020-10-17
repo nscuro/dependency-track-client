@@ -2,20 +2,20 @@ package dtrack
 
 import (
 	"fmt"
-	"strconv"
 )
 
 type Project struct {
 	Description            string          `json:"description"`
 	LastBOMImport          int64           `json:"lastBomImport"`
 	LastBOMImportFormat    string          `json:"lastBomImportFormat"`
-	LastInheritedRiskScore int             `json:"lastInheritedRiskScore"`
+	LastInheritedRiskScore float32         `json:"lastInheritedRiskScore"`
 	Metrics                *ProjectMetrics `json:"metrics"`
 	Name                   string          `json:"name"`
 	UUID                   string          `json:"uuid"`
 	Version                string          `json:"version"`
 }
 
+// GetProject gets a Project by its UUID
 func (c Client) GetProject(uuid string) (*Project, error) {
 	res, err := c.restClient.R().
 		SetPathParams(map[string]string{
@@ -39,6 +39,7 @@ func (c Client) GetProject(uuid string) (*Project, error) {
 	return project, nil
 }
 
+// LookupProject gets a Project by its name and version
 func (c Client) LookupProject(name, version string) (*Project, error) {
 	res, err := c.restClient.R().
 		SetQueryParams(map[string]string{
@@ -77,37 +78,23 @@ func (c Client) ResolveProject(uuid, name, version string) (*Project, error) {
 	}
 }
 
-// GetProject retrieves all projects
+// GetProjects retrieves all projects
 func (c Client) GetProjects() ([]Project, error) {
-	page := 1
-	hasMorePages := true
 	projects := make([]Project, 0)
-	for hasMorePages {
-		res, err := c.restClient.R().
-			SetResult(make([]Project, 0)).
-			SetQueryParams(map[string]string{
-				"pageSize":   "100",
-				"pageNumber": strconv.Itoa(page),
-			}).
-			Get("/api/v1/project")
-		if err != nil {
-			return nil, err
-		}
 
-		if err = c.checkResponseStatus(res, 200); err != nil {
-			return nil, err
-		}
+	req := c.restClient.R().
+		SetResult([]Project{})
 
-		projectsOnPage, ok := res.Result().(*[]Project)
+	err := c.getPaginatedResponse(req, "/api/v1/project", func(result interface{}) (int, error) {
+		projectsOnPage, ok := result.(*[]Project)
 		if !ok {
-			return nil, ErrInvalidResponseType
+			return -1, ErrInvalidResponseType
 		}
-
 		projects = append(projects, *projectsOnPage...)
-
-		totalCount, _ := strconv.Atoi(res.Header().Get(totalCountHeader))
-		hasMorePages = len(projects) < totalCount
-		page++
+		return len(projects), nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return projects, nil

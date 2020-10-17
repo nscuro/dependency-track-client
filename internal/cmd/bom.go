@@ -25,6 +25,12 @@ var (
 	}
 	bomExportOpts bomExportOptions
 
+	bomStatusCmd = &cobra.Command{
+		Use: "status",
+		Run: runBomStatusCmd,
+	}
+	bomStatusOpts bomStatusOptions
+
 	bomUploadCmd = &cobra.Command{
 		Use:   "upload",
 		Short: "Upload a BOM",
@@ -37,6 +43,10 @@ type bomExportOptions struct {
 	outputFilePath string
 }
 
+type bomStatusOptions struct {
+	token string
+}
+
 type bomUploadOptions struct {
 	bomFilePath string
 	autoCreate  bool
@@ -46,6 +56,10 @@ type bomUploadOptions struct {
 func init() {
 	bomExportCmd.Flags().StringVarP(&bomExportOpts.outputFilePath, "output", "o", "", "Output file path")
 	bomCmd.AddCommand(bomExportCmd)
+
+	bomStatusCmd.Flags().StringVarP(&bomStatusOpts.token, "token", "t", "", "Upload token")
+	bomStatusCmd.MarkFlagRequired("token")
+	bomCmd.AddCommand(bomStatusCmd)
 
 	bomUploadCmd.Flags().StringVar(&bomUploadOpts.bomFilePath, "bom", "", "BOM to upload")
 	bomUploadCmd.Flags().BoolVar(&bomUploadOpts.autoCreate, "autocreate", false, "Automatically create project")
@@ -78,6 +92,19 @@ func runBomExportCmd(_ *cobra.Command, _ []string) {
 	}
 }
 
+func runBomStatusCmd(_ *cobra.Command, _ []string) {
+	processing, err := mustGetDTrackClient().IsTokenBeingProcessed(bomStatusOpts.token)
+	if err != nil {
+		log.Fatalf("failed to get status: %v", err)
+	}
+
+	if processing {
+		fmt.Println("BOM is still being processed")
+	} else {
+		fmt.Println("BOM processing completed")
+	}
+}
+
 func runBomUploadCmd(_ *cobra.Command, _ []string) {
 	var bomContent []byte
 	var err error
@@ -94,7 +121,7 @@ func runBomUploadCmd(_ *cobra.Command, _ []string) {
 		}
 	}
 
-	token, err := mustGetDTrackClient().UploadBOM(dtrack.BOMSubmitRequest{
+	token, err := mustGetDTrackClient().UploadBOM(dtrack.BOMUploadRequest{
 		ProjectUUID:    globalOpts.projectUUID,
 		ProjectName:    globalOpts.projectName,
 		ProjectVersion: globalOpts.projectVersion,

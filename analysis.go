@@ -16,8 +16,8 @@ type AnalysisRequest struct {
 	ComponentUUID     string `json:"component"`
 	ProjectUUID       string `json:"project"`
 	VulnerabilityUUID string `json:"vulnerability"`
-	Comment           string `json:"comment"`
-	State             string `json:"analysisState"`
+	Comment           string `json:"comment,omitempty"`
+	State             string `json:"analysisState,omitempty"`
 	Suppressed        bool   `json:"isSuppressed"`
 }
 

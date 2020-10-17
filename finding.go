@@ -1,7 +1,5 @@
 package dtrack
 
-import "strconv"
-
 type Finding struct {
 	Attribution   *FindingAttribution `json:"attribution"`
 	Analysis      *Analysis           `json:"analysis"`
@@ -16,40 +14,25 @@ type FindingAttribution struct {
 }
 
 // GetFindings retrieves all findings associated with a given project
-func (c Client) GetFindings(uuid string) ([]Finding, error) {
-	page := 1
-	hasMorePages := true
+func (c Client) GetFindings(projectUUID string) ([]Finding, error) {
 	findings := make([]Finding, 0)
 
-	for hasMorePages {
-		res, err := c.restClient.R().
-			SetPathParams(map[string]string{
-				"uuid": uuid,
-			}).
-			SetQueryParams(map[string]string{
-				"pageSize":   "100",
-				"pageNumber": strconv.Itoa(page),
-			}).
-			SetResult(make([]Finding, 0)).
-			Get("/api/v1/finding/project/{uuid}")
-		if err != nil {
-			return nil, err
-		}
+	req := c.restClient.R().
+		SetPathParams(map[string]string{
+			"uuid": projectUUID,
+		}).
+		SetResult([]Finding{})
 
-		if err = c.checkResponseStatus(res, 200); err != nil {
-			return nil, err
-		}
-
-		findingsOnPage, ok := res.Result().(*[]Finding)
+	err := c.getPaginatedResponse(req, "/api/v1/finding/project/{uuid}", func(result interface{}) (int, error) {
+		findingsOnPage, ok := result.(*[]Finding)
 		if !ok {
-			return nil, ErrInvalidResponseType
+			return -1, ErrInvalidResponseType
 		}
-
 		findings = append(findings, *findingsOnPage...)
-
-		totalCount, _ := strconv.Atoi(res.Header().Get(totalCountHeader))
-		hasMorePages = len(findings) < totalCount
-		page++
+		return len(findings), nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return findings, nil

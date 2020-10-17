@@ -1,6 +1,6 @@
 package dtrack
 
-type BOMSubmitRequest struct {
+type BOMUploadRequest struct {
 	ProjectUUID    string `json:"project,omitempty"`
 	ProjectName    string `json:"projectName,omitempty"`
 	ProjectVersion string `json:"projectVersion,omitempty"`
@@ -16,9 +16,9 @@ type tokenProcessingResponse struct {
 	Processing bool `json:"processing"`
 }
 
-func (c Client) UploadBOM(submission BOMSubmitRequest) (string, error) {
+func (c Client) UploadBOM(request BOMUploadRequest) (string, error) {
 	res, err := c.restClient.R().
-		SetBody(submission).
+		SetBody(request).
 		SetHeader("Content-Type", "application/json").
 		SetResult(&bomSubmitResponse{}).
 		Put("/api/v1/bom")

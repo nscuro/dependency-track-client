@@ -33,25 +33,26 @@ func (c Client) GetComponent(uuid string) (*Component, error) {
 	return component, nil
 }
 
-func (c Client) GetComponentsForProject(uuid string) ([]Component, error) {
-	res, err := c.restClient.R().
+func (c Client) GetComponentsForProject(projectUUID string) ([]Component, error) {
+	components := make([]Component, 0)
+
+	req := c.restClient.R().
 		SetPathParams(map[string]string{
-			"uuid": uuid,
+			"uuid": projectUUID,
 		}).
-		SetResult(make([]Component, 0)).
-		Get("/api/v1/component/project/{uuid}")
+		SetResult([]Component{})
+
+	err := c.getPaginatedResponse(req, "/api/v1/component/project/{uuid}", func(result interface{}) (int, error) {
+		componentsOnPage, ok := result.(*[]Component)
+		if !ok {
+			return -1, ErrInvalidResponseType
+		}
+		components = append(components, *componentsOnPage...)
+		return len(components), nil
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	if err = c.checkResponseStatus(res, 200); err != nil {
-		return nil, err
-	}
-
-	components, ok := res.Result().(*[]Component)
-	if !ok {
-		return nil, ErrInvalidResponseType
-	}
-
-	return *components, nil
+	return components, nil
 }

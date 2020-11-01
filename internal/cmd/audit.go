@@ -17,7 +17,7 @@ import (
 var (
 	auditCmd = &cobra.Command{
 		Use:   "audit",
-		Short: "Audit for vulnerabilities",
+		Short: "Audit for vulnerabilities and policy violations",
 		Run:   runAuditCmd,
 	}
 	auditOpts auditOptions

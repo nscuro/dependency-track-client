@@ -36,7 +36,7 @@ Usage:
   dtrack [command]
 
 Available Commands:
-  audit       Audit for vulnerabilities
+  audit       Audit for vulnerabilities and policy violations
   bom         Export and Upload BOMs
   help        Help about any command
   report      Generate reports

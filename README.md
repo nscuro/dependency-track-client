@@ -66,7 +66,8 @@ $ export DTRACK_APIKEY=0sl67mjen99zxb2y
 $ ./dtrack audit \
     --project-name Dependency-Track \
     --project-version 3.8.0 \
-    --bom ./bom.xml --autocreate
+    --bom ./bom.xml --autocreate \
+    --gate ./examples/qualitygate.yaml
 ```
 
 #### BOM
@@ -78,6 +79,13 @@ $ ./dtrack bom export \
     --project-name Dependency-Track \
     --project-version 3.8.0 \
     -o bom.xml
+```
+
+##### Status
+
+```
+$ ./dtrack bom status \
+    --token e043867f-b055-465f-814b-38f3330c2ec2
 ```
 
 ##### Upload

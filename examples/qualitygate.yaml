@@ -7,3 +7,7 @@ severity-thresholds:
   # LOW: 9999
   # INFO: 9999
   # UNASSIGNED: 9999
+violation-thresholds:
+  # LICENSE: 0
+  OPERATIONAL: 0
+  SECURITY: 0

@@ -1,5 +1,11 @@
 package dtrack
 
+const (
+	LicensePolicyViolation     = "LICENSE"
+	OperationalPolicyViolation = "OPERATIONAL"
+	SecurityPolicyViolation    = "SECURITY"
+)
+
 type PolicyViolation struct {
 	Component *Component `json:"component"`
 	Project   *Project   `json:"project"`

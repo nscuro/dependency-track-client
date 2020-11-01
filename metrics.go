@@ -1,18 +1,38 @@
 package dtrack
 
+import "fmt"
+
 type ProjectMetrics struct {
-	Components           int   `json:"components"`
-	Critical             int   `json:"critical"`
-	FindingsAudited      int   `json:"findingsAudited"`
-	FindingsTotal        int   `json:"findingsTotal"`
-	FindingsUnaudited    int   `json:"findingsUnaudited"`
-	High                 int   `json:"high"`
-	InheritedRiskScore   int64 `json:"inheritedRiskScore"`
-	Low                  int   `json:"low"`
-	Medium               int   `json:"medium"`
-	Suppressed           int   `json:"suppressed"`
-	Unassigned           int   `json:"unassigned"`
-	VulnerableComponents int   `json:"vulnerableComponents"`
+	Components           int     `json:"components"`
+	Critical             int     `json:"critical"`
+	FindingsAudited      int     `json:"findingsAudited"`
+	FindingsTotal        int     `json:"findingsTotal"`
+	FindingsUnaudited    int     `json:"findingsUnaudited"`
+	High                 int     `json:"high"`
+	InheritedRiskScore   float32 `json:"inheritedRiskScore"`
+	Low                  int     `json:"low"`
+	Medium               int     `json:"medium"`
+	Suppressed           int     `json:"suppressed"`
+	Unassigned           int     `json:"unassigned"`
+	VulnerableComponents int     `json:"vulnerableComponents"`
+}
+
+func (pm ProjectMetrics) GetSeverityCount(severity string) (count int, err error) {
+	switch severity {
+	case CriticalSeverity:
+		count = pm.Critical
+	case HighSeverity:
+		count = pm.High
+	case MediumSeverity:
+		count = pm.Medium
+	case LowSeverity:
+		count = pm.Low
+	case UnassignedSeverity:
+		count = pm.Unassigned
+	default:
+		err = fmt.Errorf("cannot determine count for severity %s", severity)
+	}
+	return
 }
 
 func (c Client) GetCurrentProjectMetrics(uuid string) (*ProjectMetrics, error) {

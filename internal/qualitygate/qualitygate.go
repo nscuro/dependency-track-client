@@ -82,97 +82,104 @@ func (e Evaluator) Evaluate(projectUUID string, gate *Gate) error {
 		return fmt.Errorf("failed to retrieve project metrics: %w", err)
 	}
 
-	if gate.MaxRiskScore > -1 {
-		log.Println("evaluating max risk score")
-		if projectMetrics.InheritedRiskScore > gate.MaxRiskScore {
-			return fmt.Errorf("expected risk score to be <= %.2f, but was %.2f", gate.MaxRiskScore, projectMetrics.InheritedRiskScore)
-		}
-	}
-
-	if gate.MaxSeverity != "" {
-		log.Println("evaluating max severity")
-		switch gate.MaxSeverity {
-		case dtrack.LowSeverity:
-			if projectMetrics.Low > 0 {
-				return maxSeverityExceededError(gate.MaxSeverity, dtrack.LowSeverity)
-			}
-			fallthrough
-		case dtrack.MediumSeverity:
-			if projectMetrics.Medium > 0 {
-				return maxSeverityExceededError(gate.MaxSeverity, dtrack.MediumSeverity)
-			}
-			fallthrough
-		case dtrack.HighSeverity:
-			if projectMetrics.High > 0 {
-				return maxSeverityExceededError(gate.MaxSeverity, dtrack.HighSeverity)
-			}
-			fallthrough
-		case dtrack.CriticalSeverity:
-			if projectMetrics.Critical > 0 {
-				return maxSeverityExceededError(gate.MaxSeverity, dtrack.CriticalSeverity)
-			}
-		default:
-			return fmt.Errorf("invalid severity \"%s\"", gate.MaxSeverity)
-		}
-	}
-
-	if len(gate.SeverityThresholds) > 0 {
-		log.Println("evaluating severity thresholds")
-		for _, severity := range severities {
-			threshold, ok := gate.SeverityThresholds[severity]
-			if !ok {
-				continue
-			}
-
-			count, err := projectMetrics.GetSeverityCount(severity)
-			if err != nil {
-				continue
-			}
-
-			if count > threshold {
-				return fmt.Errorf("threshold for severity %s exceeded: allowed=%d actual=%d", severity, threshold, count)
-			}
-		}
-	}
-
-	if len(gate.ViolationThresholds) > 0 {
-		log.Println("evaluating violation thresholds")
-
-		violations, err := e.dtrackClient.GetPolicyViolationsForProject(projectUUID)
-		if err != nil {
-			return fmt.Errorf("failed to retrieve policy violations: %w", err)
-		}
-
-		violationCounts := make(map[string]int)
-		for _, violations := range violations {
-			switch violations.Type {
-			case dtrack.LicensePolicyViolation:
-				violationCounts[dtrack.LicensePolicyViolation] += 1
-			case dtrack.OperationalPolicyViolation:
-				violationCounts[dtrack.OperationalPolicyViolation] += 1
-			case dtrack.SecurityPolicyViolation:
-				violationCounts[dtrack.SecurityPolicyViolation] += 1
-			}
-		}
-
-		for _, violationType := range violationTypes {
-			threshold, ok := gate.ViolationThresholds[violationType]
-			if !ok {
-				continue
-			}
-
-			count, ok := violationCounts[violationType]
-			if !ok {
-				count = 0
-			}
-
-			if count > threshold {
-				return fmt.Errorf("threshold for violation type %s exceeded: allowed=%d actual=%d", violationType, threshold, count)
-			}
-		}
-	}
+	e.evaluateMaxRiskScore(projectMetrics, gate)
+	e.evaluateMaxSeverity(projectMetrics, gate)
+	e.evaluateSeverityThresholds(projectMetrics, gate)
+	e.evaluateViolationThresholds(projectMetrics, gate)
 
 	log.Println("quality gate passed")
+	return nil
+}
+
+func (e Evaluator) evaluateMaxRiskScore(metrics *dtrack.ProjectMetrics, gate *Gate) error {
+	if gate.MaxRiskScore <= -1 {
+		return nil
+	}
+
+	log.Println("evaluating max risk score")
+	if metrics.InheritedRiskScore > gate.MaxRiskScore {
+		return fmt.Errorf("expected risk score to be <= %.2f, but was %.2f", gate.MaxRiskScore, metrics.InheritedRiskScore)
+	}
+	return nil
+}
+
+func (e Evaluator) evaluateMaxSeverity(metrics *dtrack.ProjectMetrics, gate *Gate) error {
+	if gate.MaxSeverity == "" {
+		return nil
+	}
+
+	log.Println("evaluating max severity")
+	switch gate.MaxSeverity {
+	case dtrack.LowSeverity:
+		if metrics.Low > 0 {
+			return maxSeverityExceededError(gate.MaxSeverity, dtrack.LowSeverity)
+		}
+		fallthrough
+	case dtrack.MediumSeverity:
+		if metrics.Medium > 0 {
+			return maxSeverityExceededError(gate.MaxSeverity, dtrack.MediumSeverity)
+		}
+		fallthrough
+	case dtrack.HighSeverity:
+		if metrics.High > 0 {
+			return maxSeverityExceededError(gate.MaxSeverity, dtrack.HighSeverity)
+		}
+		fallthrough
+	case dtrack.CriticalSeverity:
+		if metrics.Critical > 0 {
+			return maxSeverityExceededError(gate.MaxSeverity, dtrack.CriticalSeverity)
+		}
+	default:
+		return fmt.Errorf("invalid severity \"%s\"", gate.MaxSeverity)
+	}
+	return nil
+}
+
+func (e Evaluator) evaluateSeverityThresholds(metrics *dtrack.ProjectMetrics, gate *Gate) error {
+	if len(gate.SeverityThresholds) == 0 {
+		return nil
+	}
+
+	log.Println("evaluating severity thresholds")
+	for _, severity := range severities {
+		threshold, ok := gate.SeverityThresholds[severity]
+		if !ok {
+			continue
+		}
+
+		count, err := metrics.GetSeverityCount(severity)
+		if err != nil {
+			continue
+		}
+
+		if count > threshold {
+			return fmt.Errorf("threshold for severity %s exceeded: allowed=%d actual=%d", severity, threshold, count)
+		}
+	}
+	return nil
+}
+
+func (e Evaluator) evaluateViolationThresholds(metrics *dtrack.ProjectMetrics, gate *Gate) error {
+	if len(gate.ViolationThresholds) == 0 {
+		return nil
+	}
+
+	log.Println("evaluating violation thresholds")
+	for _, violationType := range violationTypes {
+		threshold, ok := gate.ViolationThresholds[violationType]
+		if !ok {
+			continue
+		}
+
+		count, err := metrics.GetViolationCount(violationType)
+		if err != nil {
+			continue
+		}
+
+		if count > threshold {
+			return fmt.Errorf("threshold for violation type %s exceeded: allowed=%d actual=%d", violationType, threshold, count)
+		}
+	}
 	return nil
 }
 

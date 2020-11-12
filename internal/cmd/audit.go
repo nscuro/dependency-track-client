@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/nscuro/dependency-track-client"
 	"github.com/nscuro/dependency-track-client/internal/qualitygate"
+	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 )
 
 var (

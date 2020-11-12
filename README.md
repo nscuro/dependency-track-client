@@ -7,14 +7,6 @@ Unofficial Go client library and CLI for [Dependency-Track](https://github.com/D
 
 ## Installation
 
-For library usage:
-
-```
-GO111MODULE=on go get -v github.com/nscuro/dependency-track-client
-```
-
-With `dtrack` command:
-
 ```
 GO111MODULE=on go get -v github.com/nscuro/dependency-track-client/...
 ```

@@ -9,7 +9,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/nscuro/dependency-track-client"
+	"github.com/nscuro/dependency-track-client/pkg/dtrack"
 )
 
 var (

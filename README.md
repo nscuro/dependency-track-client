@@ -5,6 +5,8 @@
 
 Unofficial Go client library and CLI for [Dependency-Track](https://github.com/DependencyTrack/dependency-track)
 
+> ⚠ This project is still very much a work in progress. Please, don't use it in CI/CD pipelines yet ⚠
+
 ## Installation
 
 ```

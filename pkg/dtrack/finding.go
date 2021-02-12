@@ -1,5 +1,7 @@
 package dtrack
 
+import "context"
+
 type Finding struct {
 	Attribution   *FindingAttribution `json:"attribution"`
 	Analysis      *Analysis           `json:"analysis"`
@@ -9,22 +11,32 @@ type Finding struct {
 }
 
 type FindingAttribution struct {
-	UUID             string `json:"uuid"`
-	AnalyzerIdentity string `json:"analyzerIdentity"`
+	AlternateIdentifier string `json:"alternateIdentifier"`
+	AnalyzerIdentity    string `json:"analyzerIdentity"`
+	AttributedOn        string `json:"attributedOn"`
+	ReferenceURL        string `json:"referenceUrl"`
+	UUID                string `json:"uuid"`
 }
 
-// GetFindings retrieves all findings associated with a given project
-func (c Client) GetFindings(projectUUID string) ([]Finding, error) {
+type FindingService interface {
+	GetForProject(ctx context.Context, projectUUID string) ([]Finding, error)
+	ExportForProject(ctx context.Context, projectUUID string) (string, error)
+}
+
+type findingServiceImpl struct {
+	client *Client
+}
+
+func (f findingServiceImpl) GetForProject(ctx context.Context, projectUUID string) ([]Finding, error) {
 	findings := make([]Finding, 0)
 
-	req := c.restClient.R().
-		SetPathParams(map[string]string{
-			"uuid": projectUUID,
-		}).
+	req := f.client.restClient.R().
+		SetContext(ctx).
+		SetPathParam("uuid", projectUUID).
 		SetResult([]Finding{})
 
-	err := c.getPaginatedResponse(req, "/api/v1/finding/project/{uuid}", func(result interface{}) (int, error) {
-		findingsOnPage, ok := result.(*[]Finding)
+	err := f.client.getPaginatedResponse(req, "/api/v1/finding/project/{uuid}", func(res interface{}) (int, error) {
+		findingsOnPage, ok := res.(*[]Finding)
 		if !ok {
 			return -1, ErrInvalidResponseType
 		}
@@ -36,4 +48,8 @@ func (c Client) GetFindings(projectUUID string) ([]Finding, error) {
 	}
 
 	return findings, nil
+}
+
+func (f findingServiceImpl) ExportForProject(ctx context.Context, projectUUID string) (string, error) {
+	panic("implement me")
 }

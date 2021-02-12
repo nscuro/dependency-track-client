@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"log"
 	"strings"
 
@@ -54,7 +55,7 @@ func mustGetDTrackClient() *dtrack.Client {
 }
 
 func mustResolveProject(dtrackClient *dtrack.Client) *dtrack.Project {
-	project, err := dtrackClient.ResolveProject(globalOpts.projectUUID, globalOpts.projectName, globalOpts.projectVersion)
+	project, err := dtrackClient.Project.Resolve(context.Background(), globalOpts.projectUUID, globalOpts.projectName, globalOpts.projectVersion)
 	if err != nil {
 		log.Fatalf("failed to resolve project: %v", err)
 	}

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -57,7 +58,7 @@ func runAuditCmd(_ *cobra.Command, _ []string) {
 	}
 
 	log.Println("uploading BOM")
-	token, err := dtrackClient.UploadBOM(dtrack.BOMUploadRequest{
+	token, err := dtrackClient.BOM.Upload(context.Background(), dtrack.BOMUploadRequest{
 		ProjectUUID:    globalOpts.projectUUID,
 		ProjectName:    globalOpts.projectName,
 		ProjectVersion: globalOpts.projectVersion,
@@ -77,7 +78,7 @@ func runAuditCmd(_ *cobra.Command, _ []string) {
 		for {
 			select {
 			case <-ticker.C:
-				if processing, err := dtrackClient.IsTokenBeingProcessed(token); err == nil {
+				if processing, err := dtrackClient.BOM.IsBeingProcessed(context.Background(), token); err == nil {
 					if !processing {
 						break loop
 					}
@@ -98,7 +99,7 @@ func runAuditCmd(_ *cobra.Command, _ []string) {
 	if globalOpts.projectUUID != "" {
 		projectUUID = globalOpts.projectUUID
 	} else {
-		if project, err := dtrackClient.LookupProject(globalOpts.projectName, globalOpts.projectVersion); err == nil {
+		if project, err := dtrackClient.Project.Lookup(context.Background(), globalOpts.projectName, globalOpts.projectVersion); err == nil {
 			projectUUID = project.UUID
 		} else {
 			log.Fatalf("failed to lookup project: %v", err)

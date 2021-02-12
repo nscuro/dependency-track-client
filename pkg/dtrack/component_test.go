@@ -1,6 +1,7 @@
 package dtrack
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -32,7 +33,7 @@ func TestGetComponent(t *testing.T) {
 
 	client, _ := NewClient(mockServer.URL, "apiKey")
 
-	component, err := client.GetComponent("4d5cd8df-cff7-4212-a038-91ae4ab79396")
+	component, err := client.Component.GetByUUID(context.Background(), "4d5cd8df-cff7-4212-a038-91ae4ab79396")
 	assert.NoError(t, err)
 	assert.NotNil(t, component)
 	assert.Equal(t, "4d5cd8df-cff7-4212-a038-91ae4ab79396", component.UUID)

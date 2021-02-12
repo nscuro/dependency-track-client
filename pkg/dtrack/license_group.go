@@ -1,19 +1,30 @@
 package dtrack
 
+import "context"
+
 type LicenseGroup struct {
 	Name       string `json:"name"`
 	RiskWeight int    `json:"riskWeight"`
 	UUID       string `json:"uuid"`
 }
 
-func (c Client) GetLicenseGroups() ([]LicenseGroup, error) {
+type LicenseGroupService interface {
+	GetAll(ctx context.Context) ([]LicenseGroup, error)
+}
+
+type licenseGroupServiceImpl struct {
+	client *Client
+}
+
+func (l licenseGroupServiceImpl) GetAll(ctx context.Context) ([]LicenseGroup, error) {
 	groups := make([]LicenseGroup, 0)
 
-	req := c.restClient.R().
+	req := l.client.restClient.R().
+		SetContext(ctx).
 		SetResult([]LicenseGroup{})
 
-	err := c.getPaginatedResponse(req, "/api/v1/licenseGroup", func(result interface{}) (int, error) {
-		groupsOnPage, ok := result.(*[]LicenseGroup)
+	err := l.client.getPaginatedResponse(req, "/api/v1/licenseGroup", func(res interface{}) (int, error) {
+		groupsOnPage, ok := res.(*[]LicenseGroup)
 		if !ok {
 			return -1, ErrInvalidResponseType
 		}

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -39,7 +40,7 @@ func runVersionCmd(_ *cobra.Command, _ []string) {
 	}
 
 	var serverVersion string
-	if about, err := mustGetDTrackClient().GetAbout(); err == nil {
+	if about, err := mustGetDTrackClient().About.Get(context.Background()); err == nil {
 		serverVersion = about.Version
 	} else {
 		log.Fatalf("failed to retrieve server version: %v", err)

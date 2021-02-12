@@ -1,6 +1,10 @@
 package dtrack
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"time"
+)
 
 type ProjectMetrics struct {
 	Components                       int     `json:"components"`
@@ -26,15 +30,15 @@ type ProjectMetrics struct {
 
 func (pm ProjectMetrics) GetSeverityCount(severity string) (count int, err error) {
 	switch severity {
-	case CriticalSeverity:
+	case SeverityCritical:
 		count = pm.Critical
-	case HighSeverity:
+	case SeverityHigh:
 		count = pm.High
-	case MediumSeverity:
+	case SeverityMedium:
 		count = pm.Medium
-	case LowSeverity:
+	case SeverityLow:
 		count = pm.Low
-	case UnassignedSeverity:
+	case SeverityUnassigned:
 		count = pm.Unassigned
 	default:
 		err = fmt.Errorf("cannot determine count for severity %s", severity)
@@ -44,11 +48,11 @@ func (pm ProjectMetrics) GetSeverityCount(severity string) (count int, err error
 
 func (pm ProjectMetrics) GetViolationCount(violationType string) (count int, err error) {
 	switch violationType {
-	case LicensePolicyViolation:
+	case PolicyViolationLicense:
 		count = pm.PolicyViolationsLicenseTotal
-	case OperationalPolicyViolation:
+	case PolicyViolationOperational:
 		count = pm.PolicyViolationsOperationalTotal
-	case SecurityPolicyViolation:
+	case PolicyViolationSecurity:
 		count = pm.PolicyViolationsSecurityTotal
 	default:
 		err = fmt.Errorf("cannot determine count for violation type %s", violationType)
@@ -56,18 +60,27 @@ func (pm ProjectMetrics) GetViolationCount(violationType string) (count int, err
 	return
 }
 
-func (c Client) GetCurrentProjectMetrics(uuid string) (*ProjectMetrics, error) {
-	res, err := c.restClient.R().
-		SetPathParams(map[string]string{
-			"uuid": uuid,
-		}).
+type ProjectMetricsService interface {
+	GetCurrent(ctx context.Context, projectUUID string) (*ProjectMetrics, error)
+	GetForDays(ctx context.Context, projectUUID string, days int) (*ProjectMetrics, error)
+	GetSince(ctx context.Context, projectUUID string, date time.Time) (*ProjectMetrics, error)
+}
+
+type projectMetricsServiceImpl struct {
+	client *Client
+}
+
+func (p projectMetricsServiceImpl) GetCurrent(ctx context.Context, projectUUID string) (*ProjectMetrics, error) {
+	res, err := p.client.restClient.R().
+		SetContext(ctx).
+		SetPathParam("uuid", projectUUID).
 		SetResult(&ProjectMetrics{}).
 		Get("/api/v1/metrics/project/{uuid}/current")
 	if err != nil {
 		return nil, err
 	}
 
-	if err = c.checkResponseStatus(res, 200); err != nil {
+	if err = p.client.checkResponseStatus(res, 200); err != nil {
 		return nil, err
 	}
 
@@ -77,4 +90,12 @@ func (c Client) GetCurrentProjectMetrics(uuid string) (*ProjectMetrics, error) {
 	}
 
 	return metrics, nil
+}
+
+func (p projectMetricsServiceImpl) GetForDays(ctx context.Context, projectUUID string, days int) (*ProjectMetrics, error) {
+	panic("implement me")
+}
+
+func (p projectMetricsServiceImpl) GetSince(ctx context.Context, projectUUID string, date time.Time) (*ProjectMetrics, error) {
+	panic("implement me")
 }

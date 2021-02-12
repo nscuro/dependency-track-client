@@ -1,6 +1,7 @@
 package dtrack
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -33,7 +34,7 @@ func TestGetAbout(t *testing.T) {
 
 	client, _ := NewClient(mockServer.URL, "apiKey")
 
-	about, err := client.GetAbout()
+	about, err := client.About.Get(context.Background())
 	assert.NoError(t, err)
 
 	assert.NotNil(t, about)

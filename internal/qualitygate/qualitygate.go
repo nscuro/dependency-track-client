@@ -1,6 +1,7 @@
 package qualitygate
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -14,17 +15,17 @@ import (
 
 var (
 	severities = []string{
-		dtrack.UnassignedSeverity,
-		dtrack.InfoSeverity,
-		dtrack.LowSeverity,
-		dtrack.MediumSeverity,
-		dtrack.HighSeverity,
-		dtrack.CriticalSeverity,
+		dtrack.SeverityUnassigned,
+		dtrack.SeverityInfo,
+		dtrack.SeverityLow,
+		dtrack.SeverityMedium,
+		dtrack.SeverityHigh,
+		dtrack.SeverityCritical,
 	}
 	violationTypes = []string{
-		dtrack.LicensePolicyViolation,
-		dtrack.OperationalPolicyViolation,
-		dtrack.SecurityPolicyViolation,
+		dtrack.PolicyViolationLicense,
+		dtrack.PolicyViolationOperational,
+		dtrack.PolicyViolationSecurity,
 	}
 )
 
@@ -77,7 +78,7 @@ func NewEvaluator(dtrackClient *dtrack.Client) *Evaluator {
 
 // Evaluate evaluates a given Gate for a given project
 func (e Evaluator) Evaluate(projectUUID string, gate *Gate) error {
-	projectMetrics, err := e.dtrackClient.GetCurrentProjectMetrics(projectUUID)
+	projectMetrics, err := e.dtrackClient.ProjectMetrics.GetCurrent(context.Background(), projectUUID)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve project metrics: %w", err)
 	}
@@ -110,24 +111,24 @@ func (e Evaluator) evaluateMaxSeverity(metrics *dtrack.ProjectMetrics, gate *Gat
 
 	log.Println("evaluating max severity")
 	switch gate.MaxSeverity {
-	case dtrack.LowSeverity:
+	case dtrack.SeverityLow:
 		if metrics.Low > 0 {
-			return maxSeverityExceededError(gate.MaxSeverity, dtrack.LowSeverity)
+			return maxSeverityExceededError(gate.MaxSeverity, dtrack.SeverityLow)
 		}
 		fallthrough
-	case dtrack.MediumSeverity:
+	case dtrack.SeverityMedium:
 		if metrics.Medium > 0 {
-			return maxSeverityExceededError(gate.MaxSeverity, dtrack.MediumSeverity)
+			return maxSeverityExceededError(gate.MaxSeverity, dtrack.SeverityMedium)
 		}
 		fallthrough
-	case dtrack.HighSeverity:
+	case dtrack.SeverityHigh:
 		if metrics.High > 0 {
-			return maxSeverityExceededError(gate.MaxSeverity, dtrack.HighSeverity)
+			return maxSeverityExceededError(gate.MaxSeverity, dtrack.SeverityHigh)
 		}
 		fallthrough
-	case dtrack.CriticalSeverity:
+	case dtrack.SeverityCritical:
 		if metrics.Critical > 0 {
-			return maxSeverityExceededError(gate.MaxSeverity, dtrack.CriticalSeverity)
+			return maxSeverityExceededError(gate.MaxSeverity, dtrack.SeverityCritical)
 		}
 	default:
 		return fmt.Errorf("invalid severity \"%s\"", gate.MaxSeverity)

@@ -3,7 +3,6 @@ package dtrack
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strconv"
 
@@ -11,8 +10,10 @@ import (
 )
 
 const (
-	defaultPageSize  = 50
-	totalCountHeader = "X-Total-Count"
+	defaultPageSize = 50
+
+	headerAPIKey     = "X-Api-Key"
+	headerTotalCount = "X-Total-Count"
 )
 
 var (
@@ -23,18 +24,27 @@ var (
 	ErrInternalServerError = errors.New("internal server error")
 	ErrInvalidResponseType = errors.New("invalid response type")
 
-	ErrMissingTotalCountHeader = errors.New("response does not contain " + totalCountHeader + " header")
+	ErrMissingTotalCountHeader = errors.New("response does not contain " + headerTotalCount + " header")
 )
 
 type Client struct {
 	restClient *resty.Client
+
+	About                   AboutService
+	Analysis                AnalysisService
+	BOM                     BOMService
+	Component               ComponentService
+	Finding                 FindingService
+	License                 LicenseService
+	LicenseGroup            LicenseGroupService
+	PolicyViolation         PolicyViolationService
+	PolicyViolationAnalysis PolicyViolationAnalysisService
+	Project                 ProjectService
+	ProjectMetrics          ProjectMetricsService
+	Vulnerability           VulnerabilityService
 }
 
-type ClientOptions struct {
-	HttpClient *http.Client
-}
-
-func NewClient(baseURL, apiKey string, options ...ClientOptions) (*Client, error) {
+func NewClient(baseURL, apiKey string) (*Client, error) {
 	if baseURL == "" {
 		return nil, fmt.Errorf("no base url provided")
 	} else if _, err := url.ParseRequestURI(baseURL); err != nil {
@@ -44,17 +54,25 @@ func NewClient(baseURL, apiKey string, options ...ClientOptions) (*Client, error
 		return nil, fmt.Errorf("no api key provided")
 	}
 
-	var restClient *resty.Client
-	if len(options) > 0 && options[0].HttpClient != nil {
-		restClient = resty.NewWithClient(options[0].HttpClient)
-	} else {
-		restClient = resty.New()
-	}
+	restClient := resty.New()
 	restClient.SetHostURL(baseURL)
-	restClient.SetHeader("X-Api-Key", apiKey)
+	restClient.SetHeader(headerAPIKey, apiKey)
 	restClient.SetHeader("Accept", "application/json")
 
-	return &Client{restClient: restClient}, nil
+	client := &Client{restClient: restClient}
+	client.About = &aboutServiceImpl{client: client}
+	client.Analysis = &analysisServiceImpl{client: client}
+	client.BOM = &bomServiceImpl{client: client}
+	client.Component = &componentServiceImpl{client: client}
+	client.Finding = &findingServiceImpl{client: client}
+	client.License = &licenseServiceImpl{client: client}
+	client.LicenseGroup = &licenseGroupServiceImpl{client: client}
+	client.PolicyViolation = &policyViolationSericeImpl{client: client}
+	client.PolicyViolationAnalysis = &policyViolationAnalysisServiceImpl{client: client}
+	client.Project = &projectServiceImpl{client: client}
+	client.ProjectMetrics = &projectMetricsServiceImpl{client: client}
+	client.Vulnerability = &vulnerabilityServiceImpl{client: client}
+	return client, nil
 }
 
 func (c Client) checkResponseStatus(response *resty.Response, expectedStati ...int) error {
@@ -88,9 +106,7 @@ func (c Client) checkResponseStatus(response *resty.Response, expectedStati ...i
 	return nil
 }
 
-type paginatedResultHandler func(interface{}) (int, error)
-
-func (c Client) getPaginatedResponse(req *resty.Request, url string, handler paginatedResultHandler) error {
+func (c Client) getPaginatedResponse(req *resty.Request, url string, handler func(interface{}) (int, error)) error {
 	page := 1
 	hasMorePages := true
 
@@ -108,7 +124,7 @@ func (c Client) getPaginatedResponse(req *resty.Request, url string, handler pag
 			return err
 		}
 
-		totalCountStr := res.Header().Get(totalCountHeader)
+		totalCountStr := res.Header().Get(headerTotalCount)
 		if totalCountStr == "" {
 			return ErrMissingTotalCountHeader
 		}

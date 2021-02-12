@@ -1,5 +1,7 @@
 package dtrack
 
+import "context"
+
 type About struct {
 	UUID        string         `json:"uuid"`
 	SystemUUID  string         `json:"systemUuid"`
@@ -16,15 +18,24 @@ type AboutFramework struct {
 	Timestamp string `json:"timestamp"`
 }
 
-func (c Client) GetAbout() (*About, error) {
-	res, err := c.restClient.R().
+type AboutService interface {
+	Get(ctx context.Context) (*About, error)
+}
+
+type aboutServiceImpl struct {
+	client *Client
+}
+
+func (a aboutServiceImpl) Get(ctx context.Context) (*About, error) {
+	res, err := a.client.restClient.R().
+		SetContext(ctx).
 		SetResult(&About{}).
 		Get("/api/version")
 	if err != nil {
 		return nil, err
 	}
 
-	if err = c.checkResponseStatus(res, 200); err != nil {
+	if err = a.client.checkResponseStatus(res, 200); err != nil {
 		return nil, err
 	}
 

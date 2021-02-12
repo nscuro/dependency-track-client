@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -77,7 +78,7 @@ func runBomExportCmd(_ *cobra.Command, _ []string) {
 		projectUUID = mustResolveProject(dtrackClient).UUID
 	}
 
-	bomXML, err := dtrackClient.ExportProjectAsCycloneDX(projectUUID)
+	bomXML, err := dtrackClient.BOM.ExportProjectAsCycloneDX(context.Background(), projectUUID)
 	if err != nil {
 		log.Fatalf("failed to export BOM: %v", err)
 	}
@@ -93,7 +94,7 @@ func runBomExportCmd(_ *cobra.Command, _ []string) {
 }
 
 func runBomStatusCmd(_ *cobra.Command, _ []string) {
-	processing, err := mustGetDTrackClient().IsTokenBeingProcessed(bomStatusOpts.token)
+	processing, err := mustGetDTrackClient().BOM.IsBeingProcessed(context.Background(), bomStatusOpts.token)
 	if err != nil {
 		log.Fatalf("failed to get status: %v", err)
 	}
@@ -121,7 +122,7 @@ func runBomUploadCmd(_ *cobra.Command, _ []string) {
 		}
 	}
 
-	token, err := mustGetDTrackClient().UploadBOM(dtrack.BOMUploadRequest{
+	token, err := mustGetDTrackClient().BOM.Upload(context.Background(), dtrack.BOMUploadRequest{
 		ProjectUUID:    globalOpts.projectUUID,
 		ProjectName:    globalOpts.projectName,
 		ProjectVersion: globalOpts.projectVersion,

@@ -1,9 +1,11 @@
 package dtrack
 
+import "context"
+
 type Analysis struct {
-	Comments   []AnalysisComment
-	State      string `json:"state"`
-	Suppressed bool   `json:"isSuppressed"`
+	Comments   []AnalysisComment `json:"comments"`
+	State      string            `json:"state"`
+	Suppressed bool              `json:"isSuppressed"`
 }
 
 type AnalysisComment struct {
@@ -21,20 +23,27 @@ type AnalysisRequest struct {
 	Suppressed        bool   `json:"isSuppressed"`
 }
 
-func (c Client) GetAnalysis(componentUUID, projectUUID, vulnerabilityUUID string) (*Analysis, error) {
-	res, err := c.restClient.R().
-		SetQueryParams(map[string]string{
-			"component":     componentUUID,
-			"project":       projectUUID,
-			"vulnerability": vulnerabilityUUID,
-		}).
+type AnalysisService interface {
+	Create(ctx context.Context, req AnalysisRequest) (*Analysis, error)
+	Get(ctx context.Context, cUUID, pUUID, vUUID string) (*Analysis, error)
+}
+
+type analysisServiceImpl struct {
+	client *Client
+}
+
+func (a analysisServiceImpl) Create(ctx context.Context, req AnalysisRequest) (*Analysis, error) {
+	res, err := a.client.restClient.R().
+		SetContext(ctx).
+		SetHeader("Content-Type", "application/json").
+		SetBody(req).
 		SetResult(&Analysis{}).
-		Get("/api/v1/analysis")
+		Put("/api/v1/analysis")
 	if err != nil {
 		return nil, err
 	}
 
-	if err = c.checkResponseStatus(res, 200); err != nil {
+	if err = a.client.checkResponseStatus(res, 200); err != nil {
 		return nil, err
 	}
 
@@ -46,17 +55,21 @@ func (c Client) GetAnalysis(componentUUID, projectUUID, vulnerabilityUUID string
 	return analysis, nil
 }
 
-func (c Client) RecordAnalysis(req AnalysisRequest) (*Analysis, error) {
-	res, err := c.restClient.R().
-		SetHeader("Content-Type", "application/json").
-		SetBody(req).
+func (a analysisServiceImpl) Get(ctx context.Context, cUUID, pUUID, vUUID string) (*Analysis, error) {
+	res, err := a.client.restClient.R().
+		SetContext(ctx).
+		SetQueryParams(map[string]string{
+			"component":     cUUID,
+			"project":       pUUID,
+			"vulnerability": vUUID,
+		}).
 		SetResult(&Analysis{}).
-		Put("/api/v1/analysis")
+		Get("/api/v1/analysis")
 	if err != nil {
 		return nil, err
 	}
 
-	if err = c.checkResponseStatus(res, 200); err != nil {
+	if err = a.client.checkResponseStatus(res, 200); err != nil {
 		return nil, err
 	}
 

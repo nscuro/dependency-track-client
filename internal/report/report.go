@@ -1,6 +1,7 @@
 package report
 
 import (
+	"context"
 	"html/template"
 	"io"
 	"log"
@@ -31,13 +32,13 @@ func (g Generator) GenerateProjectReport(project *dtrack.Project, templatePath s
 	}
 
 	log.Println("retrieving project dependencies")
-	components, err := g.dtrackClient.GetComponentsForProject(project.UUID)
+	components, err := g.dtrackClient.Component.GetAllForProject(context.Background(), project.UUID)
 	if err != nil {
 		return err
 	}
 
 	log.Println("retrieving findings for project")
-	findings, err := g.dtrackClient.GetFindings(project.UUID)
+	findings, err := g.dtrackClient.Finding.GetForProject(context.Background(), project.UUID)
 	if err != nil {
 		return err
 	}

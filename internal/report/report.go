@@ -38,7 +38,7 @@ func (g Generator) GenerateProjectReport(project *dtrack.Project, templatePath s
 	}
 
 	log.Println("retrieving findings for project")
-	findings, err := g.dtrackClient.Finding.GetForProject(context.Background(), project.UUID)
+	findings, err := g.dtrackClient.Finding.GetForProject(context.Background(), project.UUID, false)
 	if err != nil {
 		return err
 	}

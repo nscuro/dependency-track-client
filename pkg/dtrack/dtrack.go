@@ -41,6 +41,7 @@ type Client struct {
 	PolicyViolationAnalysis PolicyViolationAnalysisService
 	Project                 ProjectService
 	ProjectMetrics          ProjectMetricsService
+	Repository              RepositoryService
 	Vulnerability           VulnerabilityService
 }
 
@@ -71,6 +72,7 @@ func NewClient(baseURL, apiKey string) (*Client, error) {
 	client.PolicyViolationAnalysis = &policyViolationAnalysisServiceImpl{client: client}
 	client.Project = &projectServiceImpl{client: client}
 	client.ProjectMetrics = &projectMetricsServiceImpl{client: client}
+	client.Repository = &repositoryServiceImpl{client: client}
 	client.Vulnerability = &vulnerabilityServiceImpl{client: client}
 	return client, nil
 }

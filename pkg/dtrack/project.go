@@ -36,7 +36,18 @@ type ProjectTag struct {
 	Name string `json:"name"`
 }
 
+type ProjectCloneRequest struct {
+	ProjectUUID         string `json:"project"`
+	Version             string `json:"version"`
+	IncludeAuditHistory bool   `json:"includeAuditHistory"`
+	IncludeComponents   bool   `json:"includeComponents"`
+	IncludeProperties   bool   `json:"includeProperties"`
+	IncludeServices     bool   `json:"includeServices"`
+	IncludeTags         bool   `json:"includeTags"`
+}
+
 type ProjectService interface {
+	Clone(ctx context.Context, req ProjectCloneRequest) error
 	GetAll(ctx context.Context) ([]Project, error)
 	GetByUUID(ctx context.Context, uuid string) (*Project, error)
 	Lookup(ctx context.Context, name, version string) (*Project, error)
@@ -45,6 +56,23 @@ type ProjectService interface {
 
 type projectServiceImpl struct {
 	client *Client
+}
+
+func (p projectServiceImpl) Clone(ctx context.Context, req ProjectCloneRequest) error {
+	res, err := p.client.restClient.R().
+		SetContext(ctx).
+		SetHeader("Content-Type", "application/json").
+		SetBody(req).
+		Put("/api/v1/project/clone")
+	if err != nil {
+		return err
+	}
+
+	if err = p.client.checkResponseStatus(res, 200); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p projectServiceImpl) GetAll(ctx context.Context) ([]Project, error) {
